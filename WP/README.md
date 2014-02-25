@@ -12,5 +12,5 @@
 
 _Red Pill_
 
-* Lab#1
-* Lab#2
+* [Lab#1](https://github.com/TUM-FAF/FAF-121-Istratii-Andrei/tree/master/WP/lab%231)
+* [Lab#2](https://github.com/TUM-FAF/FAF-121-Istratii-Andrei/tree/master/WP/lab%232)
