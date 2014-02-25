@@ -38,23 +38,23 @@ Advanced Form Elements. Child Windows. Basics of Working with the Keyboard
 
 1. The application on startup.
 
-![Screenshot1](https://raw.github.com/Andreis13/WP-Labs/master/lab%232/screenshots/1.png)
+    ![Screenshot1](https://raw.github.com/Andreis13/WP-Labs/master/lab%232/screenshots/1.png)
 
 2. The 'About' dialog box.
 
-![Screenshot2](https://raw.github.com/Andreis13/WP-Labs/master/lab%232/screenshots/2.png)
+    ![Screenshot2](https://raw.github.com/Andreis13/WP-Labs/master/lab%232/screenshots/2.png)
 
 3. System menu and cursor.
 
-![Screenshot3](https://raw.github.com/Andreis13/WP-Labs/master/lab%232/screenshots/3.png)
+    ![Screenshot3](https://raw.github.com/Andreis13/WP-Labs/master/lab%232/screenshots/3.png)
 
 4. Changed background and size.
 
-![Screenshot4](https://raw.github.com/Andreis13/WP-Labs/master/lab%232/screenshots/4.png)
+    ![Screenshot4](https://raw.github.com/Andreis13/WP-Labs/master/lab%232/screenshots/4.png)
 
 5. Working scrollbars for navigating the client area.
 
-![Screenshot5](https://raw.github.com/Andreis13/WP-Labs/master/lab%232/screenshots/5.png)
+    ![Screenshot5](https://raw.github.com/Andreis13/WP-Labs/master/lab%232/screenshots/5.png)
 
 
 ## A Word on the Workflow
