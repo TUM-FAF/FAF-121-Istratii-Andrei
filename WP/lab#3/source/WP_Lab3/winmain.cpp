@@ -17,6 +17,8 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include <cstdio>
 #include <fcntl.h>
 
+#include "resource.h"
+
 using namespace std;
 
 
@@ -162,12 +164,46 @@ LRESULT CALLBACK MainWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 LRESULT CALLBACK WorkspaceProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-
+    static HINSTANCE hInstance;
 
     switch (message)
     {
     case WM_CREATE:
+        hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
+        break;
 
+    case WM_PAINT:
+        {
+            PAINTSTRUCT ps;
+
+            HDC hPaintDC = BeginPaint(hWnd, &ps);
+
+            HBITMAP hDukeBmp = LoadBitmap(hInstance, MAKEINTRESOURCE(ID_DUKE_BMP));
+
+            if (!hDukeBmp)
+            {
+                MessageBox(hWnd, L"Could not load bitmap.", L"Error!", MB_OK|MB_ICONERROR);
+            }
+
+            HBITMAP hOldBm;
+
+            HDC hMemDC = CreateCompatibleDC(hPaintDC);
+
+            hOldBm = (HBITMAP)SelectObject(hMemDC, hDukeBmp);
+
+            BitBlt(hPaintDC, 0, 0, 300, 300, hMemDC, 0, 0, SRCCOPY);
+
+            SelectObject(hMemDC, hOldBm);
+            DeleteObject(hDukeBmp);
+
+            DeleteDC(hMemDC);
+            
+            EndPaint(hWnd, &ps);
+        }
+        break;
+
+    case WM_ERASEBKGND:
+        return 1;
         break;
 
 
