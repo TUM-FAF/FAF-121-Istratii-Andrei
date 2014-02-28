@@ -92,6 +92,7 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
     <ResourceCompile Include="WP_Lab3.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\assets\circles_small.bmp" />
     <Image Include="..\..\assets\duke.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

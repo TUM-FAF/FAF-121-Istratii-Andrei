@@ -6,6 +6,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 
 #include <windows.h>
+#include <windowsx.h>
 #include <commctrl.h>
 #include <map>
 #include <string>
@@ -31,6 +32,7 @@ LRESULT CALLBACK MainWinProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WorkspaceProc(HWND, UINT, WPARAM, LPARAM);
 ATOM RegisterMainWindow(HINSTANCE, LPCWSTR, WNDPROC);
 bool LoadConfigFile(char const * filePath);
+
 
 void CreateDeveloperConsole();
 
@@ -164,48 +166,108 @@ LRESULT CALLBACK MainWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 LRESULT CALLBACK WorkspaceProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static HINSTANCE hInstance;
+    static HINSTANCE hInstance = NULL;
+    static HDC hCanvasDC = NULL;
+    static HBITMAP hCanvasBMP = NULL;
+    static HBITMAP hOldBMP = NULL;
+
+    static int canvasWidth = stoi(g_options["canvas_width"]);
+    static int canvasHeight = stoi(g_options["canvas_height"]);
+
+    static float scaleFactor = 1;
 
     switch (message)
     {
     case WM_CREATE:
-        hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
+        {
+            hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
+            
+            HDC hCurrentDC = GetDC(hWnd);
+
+            hCanvasDC = CreateCompatibleDC(hCurrentDC);
+            hCanvasBMP = CreateCompatibleBitmap(hCurrentDC, canvasWidth, canvasHeight);
+
+            hOldBMP = (HBITMAP)SelectObject(hCanvasDC, hCanvasBMP);
+
+            ReleaseDC(hWnd, hCurrentDC);
+        }
         break;
+
 
     case WM_PAINT:
         {
+            RECT client;
+            GetClientRect(hWnd, &client);
+
+
             PAINTSTRUCT ps;
 
             HDC hPaintDC = BeginPaint(hWnd, &ps);
 
-            HBITMAP hDukeBmp = LoadBitmap(hInstance, MAKEINTRESOURCE(ID_DUKE_BMP));
 
-            if (!hDukeBmp)
-            {
-                MessageBox(hWnd, L"Could not load bitmap.", L"Error!", MB_OK|MB_ICONERROR);
-            }
+            HBITMAP circlesBMP = LoadBitmap(hInstance, MAKEINTRESOURCE(ID_CIRCLES_BMP));
+            HBRUSH circlesBrush = CreatePatternBrush(circlesBMP);
 
-            HBITMAP hOldBm;
+            HBRUSH oldBrush = (HBRUSH)SelectObject(hCanvasDC, circlesBrush);
+            Rectangle(hCanvasDC, 0, 0, client.right - client.left, client.bottom - client.top);
 
-            HDC hMemDC = CreateCompatibleDC(hPaintDC);
+            SelectObject(hCanvasDC, oldBrush);
+            DeleteObject(circlesBrush);
+            DeleteObject(circlesBMP);
 
-            hOldBm = (HBITMAP)SelectObject(hMemDC, hDukeBmp);
 
-            BitBlt(hPaintDC, 0, 0, 300, 300, hMemDC, 0, 0, SRCCOPY);
+            SetStretchBltMode(hPaintDC, HALFTONE);
+            StretchBlt(hPaintDC, 0, 0, 400, 400, hCanvasDC, 0, 0, 400, 400, SRCCOPY);
 
-            SelectObject(hMemDC, hOldBm);
-            DeleteObject(hDukeBmp);
+            HBRUSH whiteBrush = CreateSolidBrush(RGB(0,0,0));
+            oldBrush = (HBRUSH)SelectObject(hCanvasDC, whiteBrush);
 
-            DeleteDC(hMemDC);
             
+
+            Rectangle(hCanvasDC, 0, 0, client.right - client.left, client.bottom - client.top);
+
+            SelectObject(hCanvasDC, oldBrush);
+            DeleteObject(whiteBrush);
+
             EndPaint(hWnd, &ps);
         }
         break;
+
 
     case WM_ERASEBKGND:
         return 1;
         break;
 
+
+    case WM_MOUSEMOVE:
+        {
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+
+        }
+        break;
+
+
+    case WM_MOUSEWHEEL:
+        {
+            int delta = HIWORD(wParam);
+            if (delta > 0)
+            {
+                scaleFactor += 0.05;
+            }
+            else
+            {
+                scaleFactor -= 0.05;
+            }
+        }
+        break;
+
+
+    case WM_DESTROY:
+        if (hOldBMP) { SelectObject(hCanvasDC, hOldBMP); }
+        if (hCanvasBMP) { DeleteObject(hCanvasBMP); }
+        if (hCanvasDC) { DeleteDC(hCanvasDC); }
+        break;
 
 
     default:

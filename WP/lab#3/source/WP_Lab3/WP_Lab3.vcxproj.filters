@@ -33,5 +33,8 @@
     <Image Include="..\..\assets\duke.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="..\..\assets\circles_small.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
