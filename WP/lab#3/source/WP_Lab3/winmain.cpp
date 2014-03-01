@@ -50,7 +50,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
     InitCommonControlsEx(&ctls);
 
-    // CreateDeveloperConsole();
+    CreateDeveloperConsole();
 
 
     if (!LoadConfigFile("settings.cfg"))
@@ -147,6 +147,12 @@ LRESULT CALLBACK MainWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
         }
         break;
 
+
+    case WM_MOUSEWHEEL:
+        SendMessage(hWorkspace, message, wParam, lParam);
+        break;
+
+
     case WM_CLOSE:
         DestroyWindow(hWnd);
         break;
@@ -174,6 +180,12 @@ LRESULT CALLBACK WorkspaceProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     static int canvasWidth = stoi(g_options["canvas_width"]);
     static int canvasHeight = stoi(g_options["canvas_height"]);
 
+    static RECT clippingRect;
+    static RECT targetRect;
+
+    static POINT mouseDelta = {0, 0};
+    static POINT mousePos = {0, 0};
+
     static float scaleFactor = 1;
 
     switch (message)
@@ -190,6 +202,12 @@ LRESULT CALLBACK WorkspaceProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             hOldBMP = (HBITMAP)SelectObject(hCanvasDC, hCanvasBMP);
 
             ReleaseDC(hWnd, hCurrentDC);
+
+            clippingRect.left = 0;
+            clippingRect.top = 0;
+            clippingRect.right = canvasWidth;
+            clippingRect.bottom = canvasHeight;
+
         }
         break;
 
@@ -209,7 +227,7 @@ LRESULT CALLBACK WorkspaceProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             HBRUSH circlesBrush = CreatePatternBrush(circlesBMP);
 
             HBRUSH oldBrush = (HBRUSH)SelectObject(hCanvasDC, circlesBrush);
-            Rectangle(hCanvasDC, 0, 0, client.right - client.left, client.bottom - client.top);
+            Rectangle(hCanvasDC, 0, 0, canvasWidth, canvasHeight);
 
             SelectObject(hCanvasDC, oldBrush);
             DeleteObject(circlesBrush);
@@ -217,7 +235,12 @@ LRESULT CALLBACK WorkspaceProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 
             SetStretchBltMode(hPaintDC, HALFTONE);
-            StretchBlt(hPaintDC, 0, 0, 400, 400, hCanvasDC, 0, 0, 400, 400, SRCCOPY);
+            StretchBlt(hPaintDC, 0, 0, 400, 400, hCanvasDC,
+                        clippingRect.left,
+                        clippingRect.top,
+                        clippingRect.right - clippingRect.left,
+                        clippingRect.bottom - clippingRect.top,
+                        SRCCOPY);
 
             HBRUSH whiteBrush = CreateSolidBrush(RGB(0,0,0));
             oldBrush = (HBRUSH)SelectObject(hCanvasDC, whiteBrush);
@@ -244,24 +267,118 @@ LRESULT CALLBACK WorkspaceProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             int x = GET_X_LPARAM(lParam);
             int y = GET_Y_LPARAM(lParam);
 
+            mouseDelta.x = x - mousePos.x;
+            mouseDelta.y = y - mousePos.y;
+            mousePos.x = x;
+            mousePos.y = y;
+
+            if (wParam == MK_LBUTTON)
+            {
+                cout << "LMB DOWN\n";
+                clippingRect.left -= mouseDelta.x;
+                clippingRect.top -= mouseDelta.y;
+                clippingRect.right -= mouseDelta.x;
+                clippingRect.bottom -= mouseDelta.y;
+                InvalidateRect(hWnd, NULL, TRUE);
+            }
+
+
         }
         break;
 
 
     case WM_MOUSEWHEEL:
         {
-            int delta = HIWORD(wParam);
+            int delta = GET_WHEEL_DELTA_WPARAM(wParam);
             if (delta > 0)
             {
-                scaleFactor += 0.05;
+                scaleFactor += 0.05f;
+
+                clippingRect.left = min(clippingRect.left + 20, clippingRect.right - 50);
+                clippingRect.top = min(clippingRect.top + 20, clippingRect.bottom - 50);
+
+                clippingRect.right = max(clippingRect.left + 50, clippingRect.right -20);
+                clippingRect.bottom = max(clippingRect.top + 50, clippingRect.bottom - 20);
             }
             else
             {
-                scaleFactor -= 0.05;
+                scaleFactor -= 0.05f;
+
+                clippingRect.left = max(0, clippingRect.left - 20);
+                clippingRect.top = max(0, clippingRect.top - 20);
+
+                clippingRect.right = min(canvasWidth, clippingRect.right + 20);
+                clippingRect.bottom = min(canvasWidth, clippingRect.bottom + 20);
             }
+            InvalidateRect(hWnd, NULL, TRUE);
         }
         break;
 
+/*
+    case WM_VSCROLL:
+        if (!lParam) // check if the message is from standard scrollbar
+        {
+            SCROLLINFO scr;
+            scr.cbSize = sizeof(SCROLLINFO);
+            scr.fMask = SIF_POS|SIF_RANGE|SIF_PAGE;
+
+            GetScrollInfo(hWnd, SB_VERT, &scr);
+
+            int currScrollY = scr.nPos;
+            int maxLimit = scr.nMax - scr.nPage + 1;
+
+            switch (LOWORD(wParam))
+            {
+            case SB_LEFT:
+                currScrollY = 0;
+                break;
+
+            case SB_RIGHT:
+                currScrollY = maxLimit;
+                break;
+
+            case SB_LINELEFT:                       
+                currScrollY = max(0, scr.nPos-5);
+                break;
+
+            case SB_PAGELEFT:
+                {
+                    RECT rct;
+                    GetClientRect(hWnd, &rct);
+                    currScrollY = max(0, scr.nPos - (rct.bottom -rct.top));
+                }               
+                break;
+
+            case SB_LINERIGHT:
+                currScrollY = min(maxLimit, scr.nPos+5);
+                break;                  
+
+            case SB_PAGERIGHT:
+                {
+                    RECT rct;
+                    GetClientRect(hWnd, &rct);
+                    currScrollY = min(maxLimit, scr.nPos + (rct.bottom -rct.top));
+                }               
+                break;
+
+            case SB_THUMBTRACK:
+            case SB_THUMBPOSITION:
+                {                   
+                    currScrollY = HIWORD(wParam);
+                }
+                break;
+
+            default:
+                break;
+            }
+
+            ScrollWindowEx(hWnd, prevScrollY - currScrollY, 0, NULL, NULL, NULL, NULL, SW_ERASE | SW_INVALIDATE | SW_SCROLLCHILDREN);
+            prevScrollY = currScrollY;
+            scr.nPos = prevScrollY;
+            SetScrollInfo(hWnd, SB_VERT, &scr, TRUE);
+        }
+        break;
+        */
 
     case WM_DESTROY:
         if (hOldBMP) { SelectObject(hCanvasDC, hOldBMP); }
