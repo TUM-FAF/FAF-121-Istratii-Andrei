@@ -16,7 +16,9 @@ public:
         int nWidth, int nHeight,
         HWND hParent, HMENU hMenu, HINSTANCE hInst);
 
-    bool RegisterClass(LPCTSTR lpszClass, HINSTANCE hInst);
+    bool RegClass(LPCTSTR lpszClass, HINSTANCE hInst);
+
+    HWND GetHWND() const { return hWnd; }
 
     BOOL Show(int nCmdShow) const
     {
@@ -31,7 +33,7 @@ public:
 protected:
     HWND hWnd;
 
-
+private:
     virtual void OnDraw(HDC hDC) { }
     virtual void OnKeyDown(WPARAM vkcode, LPARAM extraInfo) { }
 
@@ -40,7 +42,7 @@ protected:
 
     static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    virtual void FillWndClassEx(WNDCLASSEX & wc);
+    virtual void FillWndClassEx(WNDCLASSEX & wcex);
 
 };
 

@@ -1,6 +1,6 @@
 
 #include "window.h"
-
+#include <iostream>
 
 
 bool Window::CreateEx(DWORD dwExStyle,
@@ -10,7 +10,7 @@ bool Window::CreateEx(DWORD dwExStyle,
                       int nWidth, int nHeight,
                       HWND hParent, HMENU hMenu, HINSTANCE hInstance)
 {
-    if (!RegisterClass(lpszClass, hInstance))
+    if (!RegClass(lpszClass, hInstance))
     {
         return false;
     }
@@ -19,7 +19,10 @@ bool Window::CreateEx(DWORD dwExStyle,
     memset(&mdic, 0, sizeof(mdic));
     mdic.lParam = (LPARAM)this;
 
-    hWnd = CreateWindowEx(dwExStyle, lpszClass, lpszName, dwStyle
+
+    hWnd = CreateWindowEx(dwExStyle,
+                            lpszClass, lpszName,
+                            dwStyle,
                             x, y, nWidth, nHeight,
                             hParent, hMenu, hInstance, &mdic);
 
@@ -27,12 +30,25 @@ bool Window::CreateEx(DWORD dwExStyle,
 }
 
 
-bool Window::RegisterClass(LPCTSTR lpszClass, HINSTANCE hInstance)
+bool Window::RegClass(LPCTSTR lpszClass, HINSTANCE hInstance)
 {
     WNDCLASSEX wcex;
 
     if (!GetClassInfoEx(hInstance, lpszClass, &wcex))
     {
+        wcex.cbSize         = sizeof(WNDCLASSEX);
+        wcex.style          = 0;
+        wcex.lpfnWndProc    = WindowProc;
+        wcex.cbClsExtra     = 0;
+        wcex.cbWndExtra     = 0;
+        wcex.hInstance      = NULL;
+        wcex.hIcon          = NULL;
+        wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
+        wcex.hbrBackground  = (HBRUSH)GetStockObject(WHITE_BRUSH);
+        wcex.lpszMenuName   = NULL;
+        wcex.lpszClassName  = NULL;
+        wcex.hIconSm        = NULL;
+
         FillWndClassEx(wcex);
 
         wcex.hInstance = hInstance;
@@ -47,18 +63,7 @@ bool Window::RegisterClass(LPCTSTR lpszClass, HINSTANCE hInstance)
 
 void Window::FillWndClassEx(WNDCLASSEX & wcex)
 {
-    wcex.cbSize         = sizeof(WNDCLASSEX);
-    wcex.style          = 0;
-    wcex.lpfnWndProc    = WindowProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = NULL;
-    wcex.hIcon          = NULL;
-    wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)GetStockObject(WHITE_BRUSH);
-    wcex.lpszMenuName   = NULL;
-    wcex.lpszClassName  = NULL;
-    wcex.hIconSm        = NULL;
+
 }
 
 
@@ -86,7 +91,7 @@ LRESULT Window::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
-    return DefWindowProc(hWnd, message, wParam, lParam);
+    return DefWindowProc(hWnd_, message, wParam, lParam);
 }
 
 
@@ -99,11 +104,11 @@ LRESULT CALLBACK Window::WindowProc(HWND hWnd_, UINT message, WPARAM wParam, LPA
         MDICREATESTRUCT* pMDIC = (MDICREATESTRUCT*) ((LPCREATESTRUCT) lParam)->lpCreateParams;
         pWin = (Window*) (pMDIC->lParam);
 
-        SetWindowLong(hWnd_, GWL_USERDATA, (LONG)pWin);
+        SetWindowLongPtr(hWnd_, GWLP_USERDATA, (LONG_PTR)pWin);
     } 
     else
     {
-        pWin = (Window*)GetWindowLong(hWnd_, GWL_USERDATA);
+        pWin = (Window*)GetWindowLongPtr(hWnd_, GWLP_USERDATA);
     }
 
     if (pWin)

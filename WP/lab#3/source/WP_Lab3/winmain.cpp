@@ -18,6 +18,8 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include <cstdio>
 #include <fcntl.h>
 
+#include "window.h"
+
 #include "resource.h"
 
 using namespace std;
@@ -36,14 +38,31 @@ bool LoadConfigFile(char const * filePath);
 
 void CreateDeveloperConsole();
 
+class CanvasWindow : public Window
+{
+private:
+    virtual LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual void FillWndClassEx(WNDCLASSEX & wcex);
+};
+
+class FrameWindow : public Window
+{
+private:
+    CanvasWindow canvas;
+
+
+    virtual void OnCreate();
+
+    virtual LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual void FillWndClassEx(WNDCLASSEX & wcex);
+};
+
+
+
+
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
 {
-
-
-    HWND hWnd;
-    MSG msg;
-
     INITCOMMONCONTROLSEX ctls;
     ctls.dwSize = sizeof(INITCOMMONCONTROLSEX);
     ctls.dwICC = ICC_BAR_CLASSES;
@@ -59,19 +78,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
         return 0;
     }
 
-
-    if (!RegisterMainWindow(hInstance, g_mainWinClassName, MainWinProc))
-    {
-        MessageBox(NULL, L"Could not register main window class!", L"Error!", MB_OK|MB_ICONERROR);
-        return 0;
-    }
-
-    if (!RegisterMainWindow(hInstance, g_workspaceWinClassName, WorkspaceProc))
-    {
-        MessageBox(NULL, L"Could not register workspace window class!", L"Error!", MB_OK|MB_ICONERROR);
-        return 0;
-    }
-
     RECT rct;
 
     rct.left = 0;
@@ -81,29 +87,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
     AdjustWindowRectEx(&rct, WS_OVERLAPPEDWINDOW | WS_HSCROLL | WS_VSCROLL, TRUE, WS_EX_OVERLAPPEDWINDOW);
 
-    hWnd = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW,
-                            g_mainWinClassName,
-                            L"WP Lab 3",
-                            WS_OVERLAPPEDWINDOW,
-                            CW_USEDEFAULT, 0,
-                            rct.right - rct.left, rct.bottom - rct.top,
-                            NULL, NULL,
-                            hInstance,
-                            NULL);
+    FrameWindow frameWindow;
 
+    bool res = frameWindow.CreateEx(WS_EX_OVERLAPPEDWINDOW,
+                                    g_mainWinClassName,
+                                    L"WP Lab 3",
+                                    WS_OVERLAPPEDWINDOW,
+                                    CW_USEDEFAULT, 0,
+                                    rct.right - rct.left, rct.bottom - rct.top,
+                                    NULL, NULL,
+                                    hInstance);
+    
 
-    if (!hWnd)
+    if (!res)
     {
         MessageBox(NULL, L"Could not create the window!", L"Error!", MB_OK|MB_ICONERROR);
         return 0;
     }
 
+    frameWindow.Show(nCmdShow);
+    frameWindow.Update();
 
-    ShowWindow(hWnd, nCmdShow);
-    UpdateWindow(hWnd);
+    MSG msg;
 
-
-    while (GetMessage(&msg, hWnd, 0, 0) > 0)
+    while (GetMessage(&msg, NULL, 0, 0))
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -114,27 +121,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
 
 
-LRESULT CALLBACK MainWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT FrameWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static HWND hWorkspace = NULL;
-
     switch (message)
     {
     case WM_CREATE:
         {
-            HINSTANCE hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
-
-            RECT rct;
-            GetClientRect(hWnd, &rct);
-
-            hWorkspace = CreateWindowEx(WS_EX_CLIENTEDGE,
-                                        g_workspaceWinClassName,
-                                        L"",
-                                        WS_CHILD|WS_VISIBLE|WS_HSCROLL|WS_VSCROLL,
-                                        120, 20,
-                                        rct.right - rct.left - 140, rct.bottom - rct.top - 40,
-                                        hWnd, NULL,
-                                        hInstance, NULL);
+            hWnd = hWnd_;
+            OnCreate();
         }
         break;
 
@@ -143,18 +137,18 @@ LRESULT CALLBACK MainWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
             int clientWidth = LOWORD(lParam);
             int clientHeight = HIWORD(lParam);
 
-            SetWindowPos(hWorkspace, HWND_TOP, 0, 0, clientWidth - 140, clientHeight - 40, SWP_NOMOVE|SWP_NOREPOSITION);
+            SetWindowPos(canvas.GetHWND(), HWND_TOP, 0, 0, clientWidth - 140, clientHeight - 40, SWP_NOMOVE|SWP_NOREPOSITION);
         }
         break;
 
 
     case WM_MOUSEWHEEL:
-        SendMessage(hWorkspace, message, wParam, lParam);
+        SendMessage(canvas.GetHWND(), message, wParam, lParam);
         break;
 
 
     case WM_CLOSE:
-        DestroyWindow(hWnd);
+        DestroyWindow(hWnd_);
         break;
 
     case WM_DESTROY:
@@ -162,7 +156,7 @@ LRESULT CALLBACK MainWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
         break;
 
     default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
+        return DefWindowProc(hWnd_, message, wParam, lParam);
     }
 
     return 0;
@@ -170,7 +164,7 @@ LRESULT CALLBACK MainWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 
 
-LRESULT CALLBACK WorkspaceProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CanvasWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HINSTANCE hInstance = NULL;
     static HDC hCanvasDC = NULL;
@@ -396,24 +390,35 @@ LRESULT CALLBACK WorkspaceProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
 
 
-ATOM RegisterMainWindow(HINSTANCE hInstance, LPCWSTR className, WNDPROC proc)
+void FrameWindow::FillWndClassEx(WNDCLASSEX & wcex)
 {
-    WNDCLASSEX wcex;
-
-    wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.lpfnWndProc = proc;
     wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
-    wcex.hCursor        = LoadCursor(hInstance, MAKEINTRESOURCE(IDC_ARROW));
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW);
-    wcex.lpszMenuName   = className;
-    wcex.lpszClassName  = className;
-    wcex.hIconSm        = 0;
+}
 
-    return RegisterClassEx(&wcex);
+
+void CanvasWindow::FillWndClassEx(WNDCLASSEX & wcex)
+{
+    wcex.style          = CS_HREDRAW | CS_VREDRAW;
+    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW);
+}
+
+
+void FrameWindow::OnCreate()
+{
+    HINSTANCE hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
+
+    RECT rct;
+    GetClientRect(hWnd, &rct);
+
+    canvas.CreateEx(WS_EX_CLIENTEDGE,
+                    g_workspaceWinClassName,
+                    L"",
+                    WS_CHILD|WS_VISIBLE|WS_HSCROLL|WS_VSCROLL,
+                    120, 20,
+                    rct.right - rct.left - 140, rct.bottom - rct.top - 40,
+                    hWnd, NULL,
+                    hInstance);
 }
 
 
