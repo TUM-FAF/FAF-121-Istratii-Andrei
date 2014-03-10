@@ -88,22 +88,3 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
     return msg.wParam;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

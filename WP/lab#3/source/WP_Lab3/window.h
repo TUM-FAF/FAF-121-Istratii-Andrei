@@ -34,7 +34,7 @@ protected:
     HWND hWnd;
 
 private:
-    virtual void OnDraw(HDC hDC) { }
+    virtual void OnPaint(HDC hDC) { }
     virtual void OnKeyDown(WPARAM vkcode, LPARAM extraInfo) { }
 
 

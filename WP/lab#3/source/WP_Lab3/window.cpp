@@ -72,6 +72,11 @@ LRESULT Window::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
     {
+    case WM_CREATE:
+        hWnd = hWnd_;
+        break;
+
+
     case WM_KEYDOWN:
         OnKeyDown(wParam, lParam);
         return 0;
@@ -81,7 +86,7 @@ LRESULT Window::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
 
             BeginPaint(hWnd, &ps);
-            OnDraw(ps.hdc);
+            OnPaint(ps.hdc);
             EndPaint(hWnd, &ps);
         }
         return 0;
