@@ -1,7 +1,7 @@
 
 #include "frame_window.h"
 
-
+#include <iostream>
 
 
 void FrameWindow::OnCreate()

@@ -3,7 +3,7 @@
 
 
 
-WorkspaceWindow::WorkspaceWindow() : Window()
+WorkspaceWindow::WorkspaceWindow()
 {
     canvas = NULL;
 }
@@ -51,7 +51,7 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 
 
     default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
+        return DefWindowProc(hWnd_, message, wParam, lParam);
     }
 
     return 0;
