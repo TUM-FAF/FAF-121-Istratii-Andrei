@@ -83,12 +83,20 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="canvas.cpp" />
+    <ClCompile Include="frame_window.cpp" />
+    <ClCompile Include="tools.cpp" />
     <ClCompile Include="window.cpp" />
     <ClCompile Include="winmain.cpp" />
+    <ClCompile Include="workspace_window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="canvas.h" />
+    <ClInclude Include="frame_window.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="tools.h" />
     <ClInclude Include="window.h" />
+    <ClInclude Include="workspace_window.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WP_Lab3.rc" />
