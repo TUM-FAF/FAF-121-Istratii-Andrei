@@ -17,20 +17,35 @@ void WorkspaceWindow::FillWndClassEx(WNDCLASSEX & wcex)
 }
 
 
+void WorkspaceWindow::OnCreate()
+{
+    RECT rct;
+    GetClientRect(hWnd, &rct);
+
+    HDC hDC = GetDC(hWnd);
+
+    backbuffer.Init(hDC, rct.right - rct.left, rct.bottom - rct.top);
+
+    ReleaseDC(hWnd, hDC);
+}
+
+
 void WorkspaceWindow::OnPaint(HDC hDC)
 {
     HDC hMemDC;
     HBITMAP hBMP;
     HBITMAP hOldBMP;
 
-    hMemDC = CreateCompatibleDC(hDC);
+    hMemDC = CreateCompatibleDC(backbuffer.GetDC());
     hBMP = LoadBitmap((HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), MAKEINTRESOURCE(ID_DUKE_BMP));
     hOldBMP = (HBITMAP)SelectObject(hMemDC, hBMP);
 
-    RECT clippingRect;
 
-    SetStretchBltMode(hDC, HALFTONE);
-    StretchBlt(hDC,
+    backbuffer.FillWithColor(RGB(200,255,200));
+
+
+    SetStretchBltMode(backbuffer.GetDC(), HALFTONE);
+    StretchBlt(backbuffer.GetDC(),
         30,
         30,
         130,
@@ -42,11 +57,18 @@ void WorkspaceWindow::OnPaint(HDC hDC)
         600,
         SRCCOPY);
 
+    backbuffer.Present(hDC);
 
     if (hOldBMP) { SelectObject(hMemDC, hOldBMP); }
     if (hBMP) { DeleteObject(hBMP); }
     if (hDC) { DeleteDC(hMemDC); }
 
+}
+
+
+void WorkspaceWindow::OnSize(int w, int h)
+{
+    backbuffer.Resize(w, h);
 }
 
 
@@ -56,6 +78,7 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
     {
     case WM_CREATE:
         hWnd = hWnd_;
+        OnCreate();
         break;
 
 
@@ -71,6 +94,11 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 
     case WM_ERASEBKGND:
         return 1;
+        break;
+
+
+    case WM_SIZE:
+        OnSize(LOWORD(lParam), HIWORD(lParam));
         break;
 
 

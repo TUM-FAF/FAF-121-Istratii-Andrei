@@ -33,6 +33,9 @@
     <ClCompile Include="workspace_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="backbuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -51,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="workspace_window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="backbuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

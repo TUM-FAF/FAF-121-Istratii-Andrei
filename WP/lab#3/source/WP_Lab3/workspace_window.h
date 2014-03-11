@@ -3,6 +3,7 @@
 
 #include <windows.h>
 #include "window.h"
+#include "backbuffer.h"
 #include "canvas.h"
 
 
@@ -16,9 +17,12 @@ public:
 
 private:
     Canvas* canvas;
+    Backbuffer backbuffer;
     RECT bltRect;
 
+    virtual void OnCreate();
     virtual void OnPaint(HDC hDC);
+    virtual void OnSize(int w, int h);
 
     void AdjustBltRect();
 
