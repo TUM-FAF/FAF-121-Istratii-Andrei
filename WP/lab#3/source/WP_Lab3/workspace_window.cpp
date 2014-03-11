@@ -1,5 +1,6 @@
 
 #include "workspace_window.h"
+#include "resource.h"
 
 
 
@@ -18,7 +19,34 @@ void WorkspaceWindow::FillWndClassEx(WNDCLASSEX & wcex)
 
 void WorkspaceWindow::OnPaint(HDC hDC)
 {
-    // iterate through objects and paint them
+    HDC hMemDC;
+    HBITMAP hBMP;
+    HBITMAP hOldBMP;
+
+    hMemDC = CreateCompatibleDC(hDC);
+    hBMP = LoadBitmap((HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), MAKEINTRESOURCE(ID_DUKE_BMP));
+    hOldBMP = (HBITMAP)SelectObject(hMemDC, hBMP);
+
+    RECT clippingRect;
+
+    SetStretchBltMode(hDC, HALFTONE);
+    StretchBlt(hDC,
+        30,
+        30,
+        130,
+        130,
+        hMemDC,
+        0,
+        0,
+        600,
+        600,
+        SRCCOPY);
+
+
+    if (hOldBMP) { SelectObject(hMemDC, hOldBMP); }
+    if (hBMP) { DeleteObject(hBMP); }
+    if (hDC) { DeleteDC(hMemDC); }
+
 }
 
 
