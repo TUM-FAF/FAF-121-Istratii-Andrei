@@ -46,10 +46,10 @@ void WorkspaceWindow::OnPaint(HDC hDC)
 
     SetStretchBltMode(backbuffer.GetDC(), HALFTONE);
     StretchBlt(backbuffer.GetDC(),
-        30,
-        30,
-        130,
-        130,
+        -50,
+        -50,
+        1000,
+        1000,
         hMemDC,
         0,
         0,
@@ -99,6 +99,19 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 
     case WM_SIZE:
         OnSize(LOWORD(lParam), HIWORD(lParam));
+        break;
+
+
+    case WM_MOUSEWHEEL:
+
+        break;
+
+
+    case WM_MOUSEMOVE:
+        if (wParam == MK_LBUTTON)
+        {
+            
+        }
         break;
 
 

@@ -6,8 +6,10 @@
 class Canvas
 {
 public:
-    Canvas(HDC hWndDC, int w, int h);
+    Canvas();
     ~Canvas();
+
+    void Init(HDC hWndDC, int w, int h);
 
 private:
     HDC hDC;

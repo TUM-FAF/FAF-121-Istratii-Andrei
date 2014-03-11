@@ -110,7 +110,7 @@ LRESULT CALLBACK Window::WindowProc(HWND hWnd_, UINT message, WPARAM wParam, LPA
         pWin = (Window*) (pMDIC->lParam);
 
         SetWindowLongPtr(hWnd_, GWLP_USERDATA, (LONG_PTR)pWin);
-    } 
+    }
     else
     {
         pWin = (Window*)GetWindowLongPtr(hWnd_, GWLP_USERDATA);
