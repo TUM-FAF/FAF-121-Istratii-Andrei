@@ -4,9 +4,10 @@
 #include <windows.h>
 #include "window.h"
 #include "backbuffer.h"
-#include "canvas.h"
+#include "mouse.h"
 
 
+class Canvas;
 
 
 class WorkspaceWindow : public Window
@@ -18,11 +19,18 @@ public:
 private:
     Canvas* canvas;
     Backbuffer backbuffer;
+
+    Mouse mouse;
+
     RECT bltRect;
+
+    
 
     virtual void OnCreate();
     virtual void OnPaint(HDC hDC);
     virtual void OnSize(int w, int h);
+    virtual void OnDestroy();
+
 
     void AdjustBltRect();
 

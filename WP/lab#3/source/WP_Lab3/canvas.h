@@ -10,6 +10,7 @@ public:
     ~Canvas();
 
     void Init(HDC hWndDC, int w, int h);
+    HDC GetDC() { return hDC; }
 
 private:
     HDC hDC;

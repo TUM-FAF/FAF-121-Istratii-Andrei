@@ -86,6 +86,7 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
     <ClCompile Include="backbuffer.cpp" />
     <ClCompile Include="canvas.cpp" />
     <ClCompile Include="frame_window.cpp" />
+    <ClCompile Include="mouse.cpp" />
     <ClCompile Include="tools.cpp" />
     <ClCompile Include="window.cpp" />
     <ClCompile Include="winmain.cpp" />
@@ -95,6 +96,7 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
     <ClInclude Include="backbuffer.h" />
     <ClInclude Include="canvas.h" />
     <ClInclude Include="frame_window.h" />
+    <ClInclude Include="mouse.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="tools.h" />
     <ClInclude Include="window.h" />
