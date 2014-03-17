@@ -14,9 +14,9 @@ else
  */
 
 (function() {
-  var plot, rk4, rk4v;
+  var plot, rk4;
 
-  rk4v = function(fs, h, t, ys) {
+  rk4 = function(fs, h, t, ys) {
     var h2, k1, k2, k3, k4, scalarMul, u, v, vectorSum, w;
     vectorSum = function(v1, v2) {
       var i, res, v, _i, _len;
@@ -51,13 +51,6 @@ else
     return vectorSum(ys, scalarMul(w, (1 / 6.0) * h));
   };
 
-  rk4 = function(f, h, t, ys) {
-    var h2, k1, k2;
-    h2 = 0.5 * h;
-    k1 = f(t, ys);
-    return k2 = f(t + h2);
-  };
-
   plot = function(graphID, xData, yData, width, height) {
     var line, margin, path, svg, xScale, yScale;
     margin = {
@@ -83,32 +76,34 @@ else
 
   $(function() {
     var fs, g, i, x, xs, ys, zs, _i, _len;
-    xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+    xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(function(x) {
+      return x * 0.5;
+    });
     ys = [[0, 1]];
     g = function(x) {
       return Math.cos(x);
     };
     fs = [
       function(t, ys) {
-        return ys[0];
-      }, function(t, ys) {
         return ys[1];
+      }, function(t, ys) {
+        return -ys[0];
       }
     ];
     for (i = _i = 0, _len = xs.length; _i < _len; i = ++_i) {
       x = xs[i];
-      ys.push(rk4(fs, 1, xs[i], [].concat(ys[i])));
+      ys.push(rk4(fs, 0.5, xs[i], [].concat(ys[i])));
     }
     ys = ys.map(function(a) {
-      return a[1];
+      return a[0];
     });
     zs = xs.map(function(x) {
-      return 2 - Math.cos(x);
+      return Math.sin(x);
     });
     console.log(ys);
     console.log(zs);
-    plot("graph1", xs, ys, 800, 400);
-    return plot("graph2", xs, zs, 800, 400);
+    plot("graph1", xs, ys, 800, 200);
+    return plot("graph2", xs, zs, 800, 200);
   });
 
 }).call(this);

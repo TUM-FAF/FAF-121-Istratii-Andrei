@@ -15,7 +15,7 @@ else
 
 
 
-rk4v = (fs, h, t, ys) ->
+rk4 = (fs, h, t, ys) ->
   vectorSum = (v1, v2) ->
     res = []
     res.push(v1[i] + v2[i]) for v, i in v1
@@ -32,12 +32,6 @@ rk4v = (fs, h, t, ys) ->
   w = vectorSum(vectorSum(vectorSum(k1, u), v), k4)  # inefficient but should work
   vectorSum(ys, scalarMul(w, (1/6.0)*h))
 
-
-rk4 = (f, h, t, ys) ->
-  h2 = 0.5 * h
-  k1 = f(t, ys)
-  k2 = f(t + h2, )
-  
 
 
 
@@ -94,6 +88,7 @@ plot = (graphID, xData, yData, width, height) ->
     .y( (d,i) -> yScale(yData[i]) )
     .interpolate("basis")
 
+
   path = svg.append("g")
     .attr("clip-path", "url(#clip)")
     .append("path")
@@ -106,25 +101,28 @@ plot = (graphID, xData, yData, width, height) ->
 $ ->
 
 
-  xs = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+  xs = [0..20].map((x)->x*0.5)
+
+
+
   ys = [[0, 1]]
 
   g = (x) -> Math.cos x
 
   fs = [
-    (t, ys) -> ys[0],
-    (t, ys) -> ys[1]
+    (t, ys) -> ys[1],
+    (t, ys) -> -ys[0]
   ]
 
 
 
-  ys.push(rk4(fs, 1, xs[i], [].concat ys[i])) for x, i in xs
-  ys = ys.map( (a) -> a[1] )
-  zs = xs.map( (x) -> 2 - Math.cos(x) )
+  ys.push(rk4(fs, 0.5, xs[i], [].concat ys[i])) for x, i in xs
+  ys = ys.map( (a) -> a[0] )
+  zs = xs.map( (x) -> Math.sin(x) )
 
   console.log ys
   console.log zs
 
-  plot("graph1", xs, ys, 800, 400)
-  plot("graph2", xs, zs, 800, 400)
+  plot("graph1", xs, ys, 800, 200)
+  plot("graph2", xs, zs, 800, 200)
   
