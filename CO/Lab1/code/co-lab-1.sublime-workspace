@@ -4,6 +4,38 @@
 		"selected_items":
 		[
 			[
+				"con",
+				"console"
+			],
+			[
+				"li",
+				"lineGenerator"
+			],
+			[
+				"u",
+				"update"
+			],
+			[
+				"Sp",
+				"SpringAnimation"
+			],
+			[
+				"x",
+				"xScale"
+			],
+			[
+				"m",
+				"mass"
+			],
+			[
+				"d",
+				"damping"
+			],
+			[
+				"el",
+				"elasticity"
+			],
+			[
 				"stop",
 				"stopSimulation"
 			],
@@ -66,10 +98,6 @@
 			[
 				"se",
 				"secure_params"
-			],
-			[
-				"li",
-				"li	Tag"
 			],
 			[
 				"in",
@@ -276,10 +304,6 @@
 				"s"
 			],
 			[
-				"el",
-				"eliminateEpsilon"
-			],
-			[
 				"file",
 				"filename"
 			],
@@ -420,20 +444,12 @@
 				"x0list"
 			],
 			[
-				"x",
-				"x0"
-			],
-			[
 				"x1",
 				"x1ziplist"
 			],
 			[
 				"t",
 				"table"
-			],
-			[
-				"d",
-				"dbls"
 			],
 			[
 				"sh",
@@ -495,7 +511,7 @@
 			"file": "plot-test/index.html",
 			"settings":
 			{
-				"buffer_size": 590,
+				"buffer_size": 656,
 				"line_ending": "Unix"
 			}
 		},
@@ -519,7 +535,7 @@
 			"file": "plot-test/animated-plot.coffee",
 			"settings":
 			{
-				"buffer_size": 3731,
+				"buffer_size": 6667,
 				"line_ending": "Unix"
 			}
 		}
@@ -552,6 +568,7 @@
 	},
 	"file_history":
 	[
+		"/home/andrew/FAF-Labs/CO/Lab1/code/plot-test/animated-plot.js",
 		"/home/andrew/Desktop/test.html",
 		"/home/andrew/Desktop/CO/Labs/Lab1/code/plot-test/index.html",
 		"/home/andrew/coco/app/views/about_view.coffee",
@@ -678,8 +695,7 @@
 		"/home/andrew/rails_projects/teahouse_beta/db/migrate/20140129132626_create_orders.rb",
 		"/home/andrew/rails_projects/teahouse_beta/db/migrate/20140129135036_create_order_items.rb",
 		"/home/andrew/rails_projects/teahouse_beta/db/migrate/20140129133013_create_items.rb",
-		"/home/andrew/rails_projects/teahouse_beta/db/migrate/20140129132704_create_customers.rb",
-		"/home/andrew/rails_projects/teahouse_beta/db/migrate/20140108202020_create_ckeditor_assets.rb"
+		"/home/andrew/rails_projects/teahouse_beta/db/migrate/20140129132704_create_customers.rb"
 	],
 	"find":
 	{
@@ -735,15 +751,15 @@
 					"file": "plot-test/index.html",
 					"settings":
 					{
-						"buffer_size": 590,
+						"buffer_size": 656,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								15,
-								15
+								374,
+								374
 							]
 						],
 						"settings":
@@ -795,8 +811,8 @@
 						"selection":
 						[
 							[
-								380,
-								380
+								804,
+								804
 							]
 						],
 						"settings":
@@ -806,7 +822,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 204.0,
+						"translation.y": 153.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -816,15 +832,15 @@
 					"file": "plot-test/animated-plot.coffee",
 					"settings":
 					{
-						"buffer_size": 3731,
+						"buffer_size": 6667,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3155,
-								3155
+								3421,
+								3421
 							]
 						],
 						"settings":
@@ -834,7 +850,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2244.0,
+						"translation.y": 2397.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
