@@ -22,10 +22,6 @@ private:
 
     Mouse mouse;
 
-    RECT bltRect;
-
-    
-
     virtual void OnCreate();
     virtual void OnPaint(HDC hDC);
     virtual void OnSize(int w, int h);

@@ -35,6 +35,12 @@ void Canvas::Init(HDC hWndDC, int w, int h)
     width = w;
     height = h;
 
+    zoomRect.left = 0;
+    zoomRect.top = 0;
+    zoomRect.right = width;
+    zoomRect.bottom = height;
+
+
     // temporary
     HDC hDukeDC = CreateCompatibleDC(hDC);
     HBITMAP hDukeBMP = (HBITMAP)LoadImage(NULL, L"..\\..\\assets\\duke.bmp", IMAGE_BITMAP, 685, 610, LR_LOADFROMFILE);
@@ -46,4 +52,44 @@ void Canvas::Init(HDC hWndDC, int w, int h)
     DeleteObject(SelectObject(hDukeDC, hDukeOldBMP));
     DeleteDC(hDukeDC);
     // end temporary
+}
+
+
+void Canvas::Pan(int dx, int dy, int vw, int vh)
+{
+    int w = zoomRect.right - zoomRect.left;
+    int h = zoomRect.bottom - zoomRect.top;
+
+    zoomRect.left += dx;
+    zoomRect.top += dy;
+    zoomRect.right += dx;
+    zoomRect.bottom += dy;
+
+    if (w > vw)
+    {
+        if (zoomRect.left > vw - 100)
+        {
+            zoomRect.left = vw - 100;
+            zoomRect.right = zoomRect.left + w;
+        }
+        else if (zoomRect.right < 100)
+        {
+            zoomRect.right = 100;
+            zoomRect.left = zoomRect.right - w;
+        }
+    }
+
+    if (h > vh)
+    {
+        if (zoomRect.top > vh - 100)
+        {
+            zoomRect.top = vh - 100;
+            zoomRect.bottom = zoomRect.top + h;
+        }
+        else if (zoomRect.bottom < 100)
+        {
+            zoomRect.bottom = 100;
+            zoomRect.top = zoomRect.bottom - h;
+        }
+    }
 }

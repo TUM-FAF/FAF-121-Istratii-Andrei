@@ -33,11 +33,6 @@ void WorkspaceWindow::OnCreate()
 
     canvas->Init(hDC, 1024, 1024);
 
-    bltRect.left = 0;
-    bltRect.top = 0;
-    bltRect.right = 1024;
-    bltRect.bottom = 1024;
-
     ReleaseDC(hWnd, hDC);
 }
 
@@ -46,17 +41,19 @@ void WorkspaceWindow::OnPaint(HDC hDC)
 {
     backbuffer.FillWithColor(RGB(200,255,200));
 
+    RECT zoom = canvas->GetZoomRect();
+
     SetStretchBltMode(backbuffer.GetDC(), HALFTONE);
     StretchBlt(backbuffer.GetDC(),
-        bltRect.left,
-        bltRect.top,
-        bltRect.right - bltRect.left,
-        bltRect.bottom - bltRect.top,
+        zoom.left,
+        zoom.top,
+        zoom.right - zoom.left,
+        zoom.bottom - zoom.top,
         canvas->GetDC(),
         0,
         0,
-        1024,
-        1024,
+        canvas->GetWidth(),
+        canvas->GetHeight(),
         SRCCOPY);
 
     backbuffer.Present(hDC);
@@ -130,10 +127,10 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 
             if (wParam == MK_LBUTTON)
             {
-                bltRect.left += mouse.DX();
-                bltRect.top += mouse.DY();
-                bltRect.right += mouse.DX();
-                bltRect.bottom += mouse.DY();
+                RECT rct;
+                GetClientRect(hWnd_, &rct);
+                canvas->Pan(mouse.DX(), mouse.DY(), rct.right - rct.left, rct.bottom - rct.top);
+
                 InvalidateRect(hWnd, NULL, FALSE);
             }
         }
