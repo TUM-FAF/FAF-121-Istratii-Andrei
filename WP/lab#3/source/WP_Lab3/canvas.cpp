@@ -66,19 +66,28 @@ void Canvas::Pan(int dx, int dy, int vw, int vh)
 }
 
 
-void Canvas::Zoom(float z, int mx, int my, int vw, int vh)
+void Canvas::Zoom(float zf, int mx, int my, int vw, int vh)
 {
     int w = zoomRect.right - zoomRect.left;
     int h = zoomRect.bottom - zoomRect.top;
 
-    RECT margin;
+    std::cout << zf << std::endl;
+    std::cout << mx << " :: " << my << std::endl;
+    std::cout << zoomRect.left << ", " << zoomRect.top << ", " << zoomRect.right << ", " << zoomRect.bottom << std::endl << std::endl;
 
-    zoomRect.left = z*(mx - zoomRect.left) - mx;
-    zoomRect.top = z*(my - zoomRect.top) - my;
-    zoomRect.right = z*(zoomRect.right - mx) + mx;
-    zoomRect.bottom = z*(zoomRect.bottom - my) + my;
+    int newWidth = width*zf;
+    int newHeight = height*zf;
 
-    //AdjustPanLimits(vw, vh);
+    float xPart = (float)(zoomRect.left - mx)/(float)w;
+    float yPart = (float)(zoomRect.top - my)/(float)h;
+
+    zoomRect.left = xPart * newWidth + mx;
+    zoomRect.top = yPart * newHeight + my;
+
+    zoomRect.right = zoomRect.left + width*zf;
+    zoomRect.bottom = zoomRect.top + height*zf;
+
+    AdjustPanLimits(vw, vh);
 }
 
 

@@ -11,7 +11,7 @@ public:
 
     void Init(HDC hWndDC, int w, int h);
     HDC GetDC() { return hDC; }
-    void Zoom(float z, int mx, int my, int vw, int vh);
+    void Zoom(float zf, int mx, int my, int vw, int vh);
     void Pan(int dx, int dy, int vw, int vh);
 
     int GetWidth() { return width; }

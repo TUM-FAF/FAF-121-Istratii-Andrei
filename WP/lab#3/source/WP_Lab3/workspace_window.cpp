@@ -104,7 +104,16 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 
 
     case WM_MOUSEWHEEL:
+        {
+            zoomFactor += (GET_WHEEL_DELTA_WPARAM(wParam) > 0) ? 0.05 : -0.05;
 
+            RECT rct;
+            GetClientRect(hWnd, &rct);
+
+            canvas->Zoom(zoomFactor, mouse.X(), mouse.Y(), rct.right - rct.left, rct.bottom - rct.top);
+
+            InvalidateRect(hWnd, NULL, FALSE);
+        }
         break;
 
 
