@@ -32,6 +32,7 @@ void WorkspaceWindow::OnCreate()
     canvas = new Canvas;
 
     canvas->Init(hDC, 1024, 1024);
+    zoomFactor = 1.0;
 
     ReleaseDC(hWnd, hDC);
 }
@@ -119,6 +120,7 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 
     case WM_MOUSEMOVE:
         {
+            SetFocus(hWnd);
             POINT m;
             m.x = GET_X_LPARAM(lParam);
             m.y = GET_Y_LPARAM(lParam);
@@ -133,6 +135,22 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 
                 InvalidateRect(hWnd, NULL, FALSE);
             }
+        }
+        break;
+
+
+    case WM_KEYDOWN:
+        if (wParam == VK_UP)
+        {
+            zoomFactor += 0.05;
+            canvas->Zoom(zoomFactor, mouse.X(), mouse.Y(), 0, 0);
+            InvalidateRect(hWnd, NULL, FALSE);
+        }
+        if (wParam == VK_DOWN)
+        {
+            zoomFactor -= 0.05;
+            canvas->Zoom(zoomFactor, mouse.X(), mouse.Y(), 0, 0);
+            InvalidateRect(hWnd, NULL, FALSE);
         }
         break;
 

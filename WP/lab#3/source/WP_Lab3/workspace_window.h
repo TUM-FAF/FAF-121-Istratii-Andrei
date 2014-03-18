@@ -22,6 +22,8 @@ private:
 
     Mouse mouse;
 
+    float zoomFactor;
+
     virtual void OnCreate();
     virtual void OnPaint(HDC hDC);
     virtual void OnSize(int w, int h);

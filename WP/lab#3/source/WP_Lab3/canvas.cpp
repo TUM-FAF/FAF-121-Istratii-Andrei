@@ -73,12 +73,12 @@ void Canvas::Zoom(float z, int mx, int my, int vw, int vh)
 
     RECT margin;
 
-    zoomRect.left = z*(mx - zoomRect.left);
-    zoomRect.top = z*(my - zoomRect.top);
-    zoomRect.right = z*(zoomRect.right - mx);
-    zoomRect.bottom = z*(zoomRect.bottom - my);
+    zoomRect.left = z*(mx - zoomRect.left) - mx;
+    zoomRect.top = z*(my - zoomRect.top) - my;
+    zoomRect.right = z*(zoomRect.right - mx) + mx;
+    zoomRect.bottom = z*(zoomRect.bottom - my) + my;
 
-    AdjustPanLimits(vw, vh);
+    //AdjustPanLimits(vw, vh);
 }
 
 
