@@ -57,13 +57,35 @@ void Canvas::Init(HDC hWndDC, int w, int h)
 
 void Canvas::Pan(int dx, int dy, int vw, int vh)
 {
-    int w = zoomRect.right - zoomRect.left;
-    int h = zoomRect.bottom - zoomRect.top;
-
     zoomRect.left += dx;
     zoomRect.top += dy;
     zoomRect.right += dx;
     zoomRect.bottom += dy;
+
+    AdjustPanLimits(vw, vh);
+}
+
+
+void Canvas::Zoom(float z, int mx, int my, int vw, int vh)
+{
+    int w = zoomRect.right - zoomRect.left;
+    int h = zoomRect.bottom - zoomRect.top;
+
+    RECT margin;
+
+    zoomRect.left = z*(mx - zoomRect.left);
+    zoomRect.top = z*(my - zoomRect.top);
+    zoomRect.right = z*(zoomRect.right - mx);
+    zoomRect.bottom = z*(zoomRect.bottom - my);
+
+    AdjustPanLimits(vw, vh);
+}
+
+
+void Canvas::AdjustPanLimits(int vw, int vh)
+{
+    int w = zoomRect.right - zoomRect.left;
+    int h = zoomRect.bottom - zoomRect.top;
 
     if (w > vw)
     {

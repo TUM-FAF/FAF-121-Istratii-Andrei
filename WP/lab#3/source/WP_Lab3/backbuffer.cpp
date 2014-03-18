@@ -55,7 +55,7 @@ void Backbuffer::Resize(int w, int h)
     hBackbufferBMP = CreateCompatibleBitmap(hBackbufferDC, width, height);
     DeleteObject(SelectObject(hBackbufferDC, hBackbufferBMP));
 
-    std::cout << hBackbufferBMP << std::endl; 
+    std::cout << hBackbufferBMP << std::endl;
 }
 
 
