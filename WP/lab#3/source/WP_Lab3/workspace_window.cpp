@@ -34,6 +34,8 @@ void WorkspaceWindow::OnCreate()
     canvas->Init(hDC, 1024, 1024);
     zoomFactor = 1.0;
 
+    mouse.RegisterListener(&intermediateDrawer);
+
     ReleaseDC(hWnd, hDC);
 }
 
@@ -56,6 +58,8 @@ void WorkspaceWindow::OnPaint(HDC hDC)
         canvas->GetWidth(),
         canvas->GetHeight(),
         SRCCOPY);
+
+    intermediateDrawer.Render(backbuffer.GetDC());
 
     backbuffer.Present(hDC);
 }
@@ -119,11 +123,13 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 
     case WM_LBUTTONDOWN:
         SetCapture(hWnd);
+        mouse.LeftButtonDown();
         break;
 
 
     case WM_LBUTTONUP:
         ReleaseCapture();
+        mouse.LeftButtonUp();
         break;
 
 
@@ -135,15 +141,15 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
             m.y = GET_Y_LPARAM(lParam);
 
             mouse.Update(m.x, m.y);
+            mouse.Move();
 
-            if (wParam == MK_LBUTTON)
+            if (wParam == MK_RBUTTON)
             {
                 RECT rct;
                 GetClientRect(hWnd_, &rct);
                 canvas->Pan(mouse.DX(), mouse.DY(), rct.right - rct.left, rct.bottom - rct.top);
-
-                InvalidateRect(hWnd, NULL, FALSE);
             }
+            InvalidateRect(hWnd, NULL, FALSE);
         }
         break;
 
