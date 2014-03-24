@@ -5,7 +5,6 @@
 #include "window.h"
 #include "backbuffer.h"
 #include "mouse.h"
-#include "drawer.h"
 
 
 class Canvas;
@@ -22,7 +21,6 @@ private:
     Backbuffer backbuffer;
 
     Mouse mouse;
-    Drawer intermediateDrawer;
 
     float zoomFactor;
 

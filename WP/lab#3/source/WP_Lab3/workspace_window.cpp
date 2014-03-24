@@ -26,10 +26,8 @@ void WorkspaceWindow::OnCreate()
     backbuffer.Init(hDC, rct.right - rct.left, rct.bottom - rct.top);
 
     canvas = new Canvas;
-
     canvas->Init(hDC, 1024, 1024);
-
-    mouse.RegisterListener(&intermediateDrawer);
+    mouse.RegisterListener(canvas);
 
     ReleaseDC(hWnd, hDC);
 }
@@ -37,7 +35,9 @@ void WorkspaceWindow::OnCreate()
 
 void WorkspaceWindow::OnPaint(HDC hDC)
 {
-    backbuffer.FillWithColor(RGB(200,255,200));
+    backbuffer.FillWithColor(RGB(100, 100, 100));
+
+    canvas->Update();
 
     RECT zoom = canvas->GetZoomRect();
 
@@ -54,7 +54,11 @@ void WorkspaceWindow::OnPaint(HDC hDC)
         canvas->GetHeight(),
         SRCCOPY);
 
-    intermediateDrawer.Render(backbuffer.GetDC());
+    HBRUSH hOldBrush = (HBRUSH)SelectObject(backbuffer.GetDC(), GetStockBrush(NULL_BRUSH));
+
+    Rectangle(backbuffer.GetDC(), zoom.left-1, zoom.top-1, zoom.right+1, zoom.bottom+1);
+
+    SelectObject(backbuffer.GetDC(), hOldBrush);
 
     backbuffer.Present(hDC);
 }
@@ -123,6 +127,18 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
     case WM_LBUTTONUP:
         ReleaseCapture();
         mouse.LeftButtonUp();
+        break;
+
+
+    case WM_RBUTTONDOWN:
+        SetCapture(hWnd);
+        mouse.RightButtonDown();
+        break;
+
+
+    case WM_RBUTTONUP:
+        ReleaseCapture();
+        mouse.RightButtonUp();
         break;
 
 

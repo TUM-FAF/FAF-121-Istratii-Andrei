@@ -20,15 +20,15 @@ Canvas::Canvas()
     height = 0;
 
     zoomFactor = 1.0f;
+
+    tempObject = NULL;
+
+    isDrawing = false;
 }
 
 
 Canvas::~Canvas()
 {
-    // temporary
-
-
-
     if (hOldBMP) { SelectObject(hDC, hOldBMP); }
     if (hBMP) { DeleteObject(hBMP); }
     if (hDC) { DeleteDC(hDC); }
@@ -48,19 +48,6 @@ void Canvas::Init(HDC hWndDC, int w, int h)
     zoomRect.top = 0;
     zoomRect.right = width;
     zoomRect.bottom = height;
-
-
-    // temporary
-    HDC hDukeDC = CreateCompatibleDC(hDC);
-    HBITMAP hDukeBMP = (HBITMAP)LoadImage(NULL, L"..\\..\\assets\\duke.bmp", IMAGE_BITMAP, 685, 610, LR_LOADFROMFILE);
-    std::cout << hDukeBMP << " (duke bmp)\n";
-    HBITMAP hDukeOldBMP = (HBITMAP)SelectObject(hDukeDC, hDukeBMP);
-
-    BitBlt(hDC, 0, 0, 685, 610, hDukeDC, 0, 0, SRCCOPY);
-
-    DeleteObject(SelectObject(hDukeDC, hDukeOldBMP));
-    DeleteDC(hDukeDC);
-    // end temporary
 }
 
 
@@ -109,7 +96,20 @@ void Canvas::Zoom(int mx, int my, int vw, int vh)
     zoomRect.right = zoomRect.left + newWidth;
     zoomRect.bottom = zoomRect.top + newHeight;
 
-    //AdjustPanLimits(vw, vh);
+    // AdjustPanLimits(vw, vh);
+}
+
+
+void Canvas::ViewToCanvasCoords(POINT* pt)
+{
+    int w = zoomRect.right - zoomRect.left;
+    int h = zoomRect.bottom - zoomRect.top;
+
+    float xPart = (float)(pt->x - zoomRect.left)/(float)w;
+    float yPart = (float)(pt->y - zoomRect.top)/(float)h;
+
+    pt->x = (int)(xPart * width);
+    pt->y = (int)(yPart * height);
 }
 
 
@@ -118,7 +118,7 @@ void Canvas::AdjustPanLimits(int vw, int vh)
     int w = zoomRect.right - zoomRect.left;
     int h = zoomRect.bottom - zoomRect.top;
 
-    if (w > vw)
+    //if (w > vw)
     {
         if (zoomRect.left > vw - 100)
         {
@@ -132,7 +132,7 @@ void Canvas::AdjustPanLimits(int vw, int vh)
         }
     }
 
-    if (h > vh)
+    //if (h > vh)
     {
         if (zoomRect.top > vh - 100)
         {
@@ -176,3 +176,97 @@ float Canvas::PrevZoomStep()
 
     return zoomFactor;
 }
+
+
+void Canvas::OnLeftMouseButtonDown(int x, int y)
+{
+    POINT p;
+    p.x = x;
+    p.y = y;
+    ViewToCanvasCoords(&p);
+
+    if (!isDrawing)
+    {
+        tempObject = new Rect(p.x, p.y);
+        std::cout << "create rect\n";
+        isDrawing = true;
+    }
+}
+
+
+void Canvas::OnLeftMouseButtonUp(int x, int y)
+{
+    if (isDrawing)
+    {
+        std::cout << "delete rect\n";
+        objects.push_back(tempObject);
+        tempObject = NULL;
+        isDrawing = false;
+    }
+}
+
+
+void Canvas::OnRightMouseButtonDown(int x, int y)
+{
+
+}
+
+
+void Canvas::OnRightMouseButtonUp(int x, int y)
+{
+
+}
+
+
+void Canvas::OnMouseMove(int x, int y)
+{
+    POINT p;
+    p.x = x;
+    p.y = y;
+    ViewToCanvasCoords(&p);
+
+    if (isDrawing)
+    {
+        std::cout << "update rect\n";
+        tempObject->Update(p.x, p.y);
+    }
+}
+
+
+
+void Canvas::Clear()
+{
+    COLORREF color = RGB(255, 255, 255);
+    HBRUSH hColorBr = CreateSolidBrush(color);
+    HPEN hColorPen = CreatePen(PS_SOLID, 1, color);
+
+    HBRUSH hOldBr = (HBRUSH)SelectObject(hDC, hColorBr);
+    HPEN hOldPen = (HPEN)SelectObject(hDC, hColorPen);
+
+    Rectangle(hDC, 0, 0, width, height);
+
+    DeleteObject(SelectObject(hDC, hOldPen));
+    DeleteObject(SelectObject(hDC, hOldBr));
+}
+
+
+
+void Canvas::Update()
+{
+    Clear();
+
+    std::list<Drawable*>::iterator itr;
+
+    for (itr = objects.begin(); itr != objects.end(); ++itr)
+    {
+        (*itr)->Render(hDC);
+    }
+
+    if (isDrawing)
+    {
+        tempObject->Render(hDC);
+    }
+}
+
+
+

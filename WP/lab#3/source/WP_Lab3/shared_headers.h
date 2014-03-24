@@ -23,7 +23,6 @@
 #include "workspace_window.h"
 #include "canvas.h"
 #include "backbuffer.h"
-#include "drawer.h"
 #include "drawable.h"
 #include "mouse.h"
 #include "tools.h"

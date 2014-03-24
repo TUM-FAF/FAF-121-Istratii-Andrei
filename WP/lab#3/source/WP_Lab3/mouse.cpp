@@ -38,6 +38,26 @@ void Mouse::LeftButtonUp()
 }
 
 
+void Mouse::RightButtonDown()
+{
+    std::vector<IMouseListener*>::iterator itr;
+    for (itr = listeners.begin(); itr != listeners.end(); ++itr)
+    {
+        (*itr)->OnRightMouseButtonDown(x, y);
+    }
+}
+
+
+void Mouse::RightButtonUp()
+{
+    std::vector<IMouseListener*>::iterator itr;
+    for (itr = listeners.begin(); itr != listeners.end(); ++itr)
+    {
+        (*itr)->OnRightMouseButtonUp(x, y);
+    }
+}
+
+
 void Mouse::Move()
 {
     std::vector<IMouseListener*>::iterator itr;

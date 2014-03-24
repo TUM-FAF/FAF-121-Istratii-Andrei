@@ -3,9 +3,12 @@
 #include <windows.h>
 #include <list>
 #include "drawable.h"
+#include "mouse.h"
 
 
-class Canvas
+
+
+class Canvas : public IMouseListener
 {
 public:
     Canvas();
@@ -22,19 +25,34 @@ public:
     int GetHeight() { return height; }
     RECT GetZoomRect() { return zoomRect; }
 
+    virtual void OnLeftMouseButtonDown(int x, int y);
+    virtual void OnLeftMouseButtonUp(int x, int y);
+    virtual void OnRightMouseButtonDown(int x, int y);
+    virtual void OnRightMouseButtonUp(int x, int y);
+    virtual void OnMouseMove(int x, int y);
+
+    void Clear();
+    void Update();
+
 private:
     HDC hDC;
     HBITMAP hBMP;
     HBITMAP hOldBMP;
 
     RECT zoomRect;
+    float zoomFactor;
 
     int width;
     int height;
 
-    float zoomFactor;
+    Drawable* tempObject;
+
+    bool isDrawing;
 
     std::list<Drawable*> objects;
+
+
+    void ViewToCanvasCoords(POINT* pt);
 
     void AdjustPanLimits(int vw, int vh);
 

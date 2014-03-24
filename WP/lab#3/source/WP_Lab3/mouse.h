@@ -7,6 +7,8 @@ class IMouseListener
 public:
     virtual void OnLeftMouseButtonDown(int x, int y) = 0;
     virtual void OnLeftMouseButtonUp(int x, int y) = 0;
+    virtual void OnRightMouseButtonDown(int x, int y) = 0;
+    virtual void OnRightMouseButtonUp(int x, int y) = 0;
     virtual void OnMouseMove(int x, int y) = 0;
 };
 
@@ -24,6 +26,8 @@ public:
 
     void LeftButtonDown();
     void LeftButtonUp();
+    void RightButtonDown();
+    void RightButtonUp();
     void Move();
 
     void RegisterListener(IMouseListener* listener);
