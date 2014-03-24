@@ -1,14 +1,6 @@
 
-
-
-#include <io.h>
-#include <cstdio>
-#include <fcntl.h>
-#include <Windows.h>
-#include <string>
-#include <fstream>
-#include <regex>
-#include <map>
+#include "tools.h"
+#include "shared_headers.h"
 
 
 void CreateDeveloperConsole()

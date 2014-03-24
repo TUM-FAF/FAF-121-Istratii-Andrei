@@ -1,5 +1,6 @@
 
 #include "drawable.h"
+#include "shared_headers.h"
 
 
 Rect::Rect(int x, int y)

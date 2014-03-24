@@ -1,6 +1,13 @@
 
 #include "canvas.h"
-#include <iostream>
+#include "shared_headers.h"
+
+
+float const Canvas::zoomSteps[] = {
+    0.01f, 0.015f, 0.02f, 0.03f, 0.04f, 0.05f,
+    0.0625f, 0.0833f, 0.125f, 0.1667f, 0.25f, 0.3333f, 0.5f, 0.6667f, 1.0f,
+    2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 12.0f, 16.0f, 32.0f
+};
 
 
 Canvas::Canvas()
@@ -11,6 +18,8 @@ Canvas::Canvas()
 
     width = 0;
     height = 0;
+
+    zoomFactor = 1.0f;
 }
 
 
@@ -66,28 +75,41 @@ void Canvas::Pan(int dx, int dy, int vw, int vh)
 }
 
 
-void Canvas::Zoom(float zf, int mx, int my, int vw, int vh)
+void Canvas::StepZoomIn(int mx, int my, int vw, int vh)
+{
+    NextZoomStep();
+    Zoom(mx, my, vw, vh);
+}
+
+
+void Canvas::StepZoomOut(int mx, int my, int vw, int vh)
+{
+    PrevZoomStep();
+    Zoom(mx, my, vw, vh);
+}
+
+
+void Canvas::Zoom(int mx, int my, int vw, int vh)
 {
     int w = zoomRect.right - zoomRect.left;
     int h = zoomRect.bottom - zoomRect.top;
 
-    std::cout << zf << std::endl;
-    std::cout << mx << " :: " << my << std::endl;
-    std::cout << zoomRect.left << ", " << zoomRect.top << ", " << zoomRect.right << ", " << zoomRect.bottom << std::endl << std::endl;
+    std::cout << zoomFactor << std::endl;
 
-    int newWidth = width*zf;
-    int newHeight = height*zf;
+
+    int newWidth = (int)(width * zoomFactor);
+    int newHeight = (int)(height * zoomFactor);
 
     float xPart = (float)(zoomRect.left - mx)/(float)w;
     float yPart = (float)(zoomRect.top - my)/(float)h;
 
-    zoomRect.left = xPart * newWidth + mx;
-    zoomRect.top = yPart * newHeight + my;
+    zoomRect.left = (int)(xPart * newWidth) + mx;
+    zoomRect.top = (int)(yPart * newHeight) + my;
 
-    zoomRect.right = zoomRect.left + width*zf;
-    zoomRect.bottom = zoomRect.top + height*zf;
+    zoomRect.right = zoomRect.left + newWidth;
+    zoomRect.bottom = zoomRect.top + newHeight;
 
-    AdjustPanLimits(vw, vh);
+    //AdjustPanLimits(vw, vh);
 }
 
 
@@ -123,4 +145,34 @@ void Canvas::AdjustPanLimits(int vw, int vh)
             zoomRect.top = zoomRect.bottom - h;
         }
     }
+}
+
+
+float Canvas::NextZoomStep()
+{
+    char i = 1;
+
+    while (i != 24 && zoomFactor > zoomSteps[i-1])
+    {
+        ++i;
+    }
+
+    zoomFactor = zoomSteps[i];
+
+    return zoomFactor;
+}
+
+
+float Canvas::PrevZoomStep()
+{
+    char i = 23;
+
+    while (i != 0 && zoomFactor < zoomSteps[i+1])
+    {
+        --i;
+    }
+
+    zoomFactor = zoomSteps[i];
+
+    return zoomFactor;
 }

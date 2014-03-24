@@ -1,5 +1,6 @@
 
 #include "mouse.h"
+#include "shared_headers.h"
 
 
 void Mouse::Update(int x_, int y_)

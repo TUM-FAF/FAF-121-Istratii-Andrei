@@ -1,6 +1,6 @@
 
 #include "window.h"
-#include <iostream>
+#include "shared_headers.h"
 
 
 bool Window::CreateEx(DWORD dwExStyle,

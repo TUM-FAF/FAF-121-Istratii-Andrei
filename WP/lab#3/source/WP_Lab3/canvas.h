@@ -13,7 +13,9 @@ public:
 
     void Init(HDC hWndDC, int w, int h);
     HDC GetDC() { return hDC; }
-    void Zoom(float zf, int mx, int my, int vw, int vh);
+    void StepZoomIn(int mx, int my, int vw, int vh);
+    void StepZoomOut(int mx, int my, int vw, int vh);
+    void Zoom(int mx, int my, int vw, int vh);
     void Pan(int dx, int dy, int vw, int vh);
 
     int GetWidth() { return width; }
@@ -30,7 +32,14 @@ private:
     int width;
     int height;
 
+    float zoomFactor;
+
     std::list<Drawable*> objects;
 
     void AdjustPanLimits(int vw, int vh);
+
+    float NextZoomStep();
+    float PrevZoomStep();
+
+    static float const zoomSteps[25];
 };

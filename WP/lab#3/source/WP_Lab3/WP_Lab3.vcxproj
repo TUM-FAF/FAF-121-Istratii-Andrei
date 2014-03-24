@@ -102,6 +102,7 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
     <ClInclude Include="frame_window.h" />
     <ClInclude Include="mouse.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="shared_headers.h" />
     <ClInclude Include="tools.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="workspace_window.h" />

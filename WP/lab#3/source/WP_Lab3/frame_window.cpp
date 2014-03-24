@@ -1,7 +1,6 @@
 
 #include "frame_window.h"
-
-#include <iostream>
+#include "shared_headers.h"
 
 
 void FrameWindow::OnCreate()

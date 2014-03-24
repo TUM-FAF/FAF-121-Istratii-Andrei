@@ -1,10 +1,6 @@
 
 #include "workspace_window.h"
-#include "resource.h"
-#include "canvas.h"
-#include <windowsx.h>
-
-#include <iostream>
+#include "shared_headers.h"
 
 
 WorkspaceWindow::WorkspaceWindow()
@@ -32,7 +28,6 @@ void WorkspaceWindow::OnCreate()
     canvas = new Canvas;
 
     canvas->Init(hDC, 1024, 1024);
-    zoomFactor = 1.0;
 
     mouse.RegisterListener(&intermediateDrawer);
 
@@ -109,12 +104,10 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 
     case WM_MOUSEWHEEL:
         {
-            zoomFactor += (GET_WHEEL_DELTA_WPARAM(wParam) > 0) ? 0.05 : -0.05;
-
             RECT rct;
             GetClientRect(hWnd, &rct);
 
-            canvas->Zoom(zoomFactor, mouse.X(), mouse.Y(), rct.right - rct.left, rct.bottom - rct.top);
+            canvas->Zoom(mouse.X(), mouse.Y(), rct.right - rct.left, rct.bottom - rct.top);
 
             InvalidateRect(hWnd, NULL, FALSE);
         }
@@ -157,14 +150,12 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
     case WM_KEYDOWN:
         if (wParam == VK_UP)
         {
-            zoomFactor += 0.05;
-            canvas->Zoom(zoomFactor, mouse.X(), mouse.Y(), 0, 0);
+            canvas->StepZoomIn(mouse.X(), mouse.Y(), 0, 0);
             InvalidateRect(hWnd, NULL, FALSE);
         }
         if (wParam == VK_DOWN)
         {
-            zoomFactor -= 0.05;
-            canvas->Zoom(zoomFactor, mouse.X(), mouse.Y(), 0, 0);
+            canvas->StepZoomOut(mouse.X(), mouse.Y(), 0, 0);
             InvalidateRect(hWnd, NULL, FALSE);
         }
         break;

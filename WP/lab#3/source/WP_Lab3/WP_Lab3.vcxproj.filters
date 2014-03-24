@@ -77,6 +77,9 @@
     <ClInclude Include="drawable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="shared_headers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WP_Lab3.rc">
