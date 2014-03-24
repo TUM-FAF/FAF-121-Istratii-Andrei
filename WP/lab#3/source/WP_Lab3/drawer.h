@@ -4,7 +4,9 @@
 #include <vector>
 #include <windows.h>
 
+#include "canvas.h"
 #include "mouse.h"
+#include "drawable.h"
 
 class Drawer : public IMouseListener
 {
@@ -17,12 +19,9 @@ public:
 
     void Render(HDC hDC);
 
-
-
-
-protected:
-    bool isDrawing;
-    std::vector<POINT> points;
+    void LinkToCanvas(Canvas* canvas);
 
 private:
+    bool isDrawing;
+    Drawable* tempObject;
 };

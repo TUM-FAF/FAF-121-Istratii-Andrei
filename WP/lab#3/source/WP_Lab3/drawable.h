@@ -11,12 +11,20 @@ public:
     virtual ~Drawable() { };
 
     virtual void Render(HDC hDC) = 0;
-    virtual void Update();
+    virtual void Update(int x, int y) = 0;
 };
 
 
-class Rectangle : public Drawable
+class Rect : public Drawable
 {
+public:
+    Rect(int x, int y);
 
+    virtual void Render(HDC hDC);
+    virtual void Update(int x, int y);
+
+private:
+    POINT start;
+    POINT end;
 };
 

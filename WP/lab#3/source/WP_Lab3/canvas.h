@@ -30,7 +30,7 @@ private:
     int width;
     int height;
 
-    std::list<Drawable*> layers;
+    std::list<Drawable*> objects;
 
     void AdjustPanLimits(int vw, int vh);
 };

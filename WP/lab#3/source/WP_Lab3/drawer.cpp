@@ -1,5 +1,7 @@
 
 #include "drawer.h"
+#include <iostream>
+
 
 
 Drawer::Drawer()
@@ -18,12 +20,8 @@ void Drawer::OnLeftMouseButtonDown(int x, int y)
 {
     if (!isDrawing)
     {
-        POINT p;
-        p.x = x;
-        p.y = y;
-        points.clear();
-        points.push_back(p);
-        points.push_back(p);
+        tempObject = new Rect(x, y);
+        std::cout << "create rect\n";
         isDrawing = true;
     }
 }
@@ -33,6 +31,8 @@ void Drawer::OnLeftMouseButtonUp(int x, int y)
 {
     if (isDrawing)
     {
+        std::cout << "delete rect\n";
+        delete tempObject;
         isDrawing = false;
     }
 }
@@ -42,8 +42,8 @@ void Drawer::OnMouseMove(int x, int y)
 {
     if (isDrawing)
     {
-        points.back().x = x;
-        points.back().y = y;
+        std::cout << "update rect\n";
+        tempObject->Update(x, y);
     }
 }
 
@@ -52,7 +52,8 @@ void Drawer::Render(HDC hDC)
 {
     if (isDrawing)
     {
-        Rectangle(hDC, points.front().x, points.front().y, points.back().x, points.back().y);
+        std::cout << "render rect\n";
+        tempObject->Render(hDC);
     }
 }
 
