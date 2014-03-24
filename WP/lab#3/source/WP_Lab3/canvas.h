@@ -1,6 +1,8 @@
 #pragma once
 
-#include <Windows.h>
+#include <windows.h>
+#include <list>
+#include "drawable.h"
 
 
 class Canvas
@@ -27,6 +29,8 @@ private:
 
     int width;
     int height;
+
+    std::list<Drawable*> layers;
 
     void AdjustPanLimits(int vw, int vh);
 };

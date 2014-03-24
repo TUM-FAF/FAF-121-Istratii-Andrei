@@ -18,6 +18,8 @@ public:
     void Render(HDC hDC);
 
 
+
+
 protected:
     bool isDrawing;
     std::vector<POINT> points;

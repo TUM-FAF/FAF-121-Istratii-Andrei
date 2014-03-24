@@ -85,6 +85,7 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
   <ItemGroup>
     <ClCompile Include="backbuffer.cpp" />
     <ClCompile Include="canvas.cpp" />
+    <ClCompile Include="drawable.cpp" />
     <ClCompile Include="drawer.cpp" />
     <ClCompile Include="frame_window.cpp" />
     <ClCompile Include="mouse.cpp" />
@@ -96,6 +97,7 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
   <ItemGroup>
     <ClInclude Include="backbuffer.h" />
     <ClInclude Include="canvas.h" />
+    <ClInclude Include="drawable.h" />
     <ClInclude Include="drawer.h" />
     <ClInclude Include="frame_window.h" />
     <ClInclude Include="mouse.h" />
