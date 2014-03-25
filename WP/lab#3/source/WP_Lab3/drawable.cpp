@@ -3,7 +3,7 @@
 #include "shared_headers.h"
 
 
-Rect::Rect(int x, int y)
+StartEndFigure::StartEndFigure(int x, int y)
 {
     start.x = x;
     start.y = y;
@@ -13,14 +13,26 @@ Rect::Rect(int x, int y)
 }
 
 
+void StartEndFigure::Update(int x, int y)
+{
+    end.x = x;
+    end.y = y;
+}
+
+
+ 
+Rect::Rect(int x, int y) : StartEndFigure(x, y) { }
+
 void Rect::Render(HDC hDC)
 {
     Rectangle(hDC, start.x, start.y, end.x, end.y);
 }
 
 
-void Rect::Update(int x, int y)
+Elips::Elips(int x, int y) : StartEndFigure(x, y) { }
+
+void Elips::Render(HDC hDC)
 {
-    end.x = x;
-    end.y = y;
+    Ellipse(hDC, start.x, start.y, end.x, end.y);
 }
+

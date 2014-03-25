@@ -3,6 +3,7 @@
 #include "shared_headers.h"
 
 
+
 bool Window::CreateEx(DWORD dwExStyle,
                       LPCTSTR lpszClass, LPCTSTR lpszName,
                       DWORD dwStyle,

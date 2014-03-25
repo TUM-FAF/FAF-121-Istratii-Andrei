@@ -4,6 +4,7 @@
 #include <windows.h>
 #include "window.h"
 #include "workspace_window.h"
+#include "toolbar.h"
 
 
 
@@ -12,6 +13,7 @@ class FrameWindow : public Window
 {
 private:
     WorkspaceWindow workspace;
+    Toolbar toolbar;
 
     virtual void OnCreate();
 

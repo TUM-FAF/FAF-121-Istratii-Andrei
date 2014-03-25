@@ -26,6 +26,7 @@
 #include "drawable.h"
 #include "mouse.h"
 #include "tools.h"
+#include "toolbar.h"
 
 #include "resource.h"
 

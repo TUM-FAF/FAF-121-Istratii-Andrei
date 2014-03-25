@@ -187,7 +187,7 @@ void Canvas::OnLeftMouseButtonDown(int x, int y)
 
     if (!isDrawing)
     {
-        tempObject = new Rect(p.x, p.y);
+        tempObject = new Elips(p.x, p.y);
         std::cout << "create rect\n";
         isDrawing = true;
     }

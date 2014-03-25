@@ -15,16 +15,33 @@ public:
 };
 
 
-class Rect : public Drawable
+
+class StartEndFigure : public Drawable
+{
+public:
+    StartEndFigure(int x, int y);
+    virtual void Update(int x, int y);
+
+protected:
+    POINT start;
+    POINT end;
+};
+
+
+class Rect : public StartEndFigure
 {
 public:
     Rect(int x, int y);
 
     virtual void Render(HDC hDC);
-    virtual void Update(int x, int y);
+};
 
-private:
-    POINT start;
-    POINT end;
+
+class Elips : public StartEndFigure
+{
+public:
+    Elips(int x, int y);
+
+    virtual void Render(HDC hDC);
 };
 

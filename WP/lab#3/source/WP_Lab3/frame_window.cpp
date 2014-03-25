@@ -10,6 +10,8 @@ void FrameWindow::OnCreate()
     RECT rct;
     GetClientRect(hWnd, &rct);
 
+    toolbar.Create(WS_CHILD|WS_VISIBLE|CCS_VERT, hWnd, hInstance);
+
     workspace.CreateEx(WS_EX_CLIENTEDGE,
                     L"workspace",
                     L"",
@@ -18,6 +20,7 @@ void FrameWindow::OnCreate()
                     rct.right - rct.left - 140, rct.bottom - rct.top - 40,
                     hWnd, NULL,
                     hInstance);
+
 }
 
 
@@ -50,6 +53,17 @@ LRESULT FrameWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM lPa
         }
         break;
 
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDM_TBITEM1:
+            std::cout << "TBITEM1\n";
+            break;
+
+        default:
+            break;
+        }
+        break;
 
     case WM_MOUSEWHEEL:
         SendMessage(workspace.GetHWND(), message, wParam, lParam);

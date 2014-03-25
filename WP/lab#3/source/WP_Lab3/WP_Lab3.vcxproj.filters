@@ -42,6 +42,9 @@
     <ClCompile Include="drawable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="toolbar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shared_headers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="toolbar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
