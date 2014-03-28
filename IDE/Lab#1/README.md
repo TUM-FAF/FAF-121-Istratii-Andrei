@@ -84,5 +84,41 @@ ssh username@hostname # this time no password is required
 ```
 
 
+### Editor
 
+
+* add haskell-mode to emacs text editor by adding a line in the package list in `~/.emacs.d/init.el`
+
+``` emacs-lisp
+
+(defvar my-packages '(starter-kit
+                      starter-kit-lisp
+                      starter-kit-bindings
+                      starter-kit-ruby
+                      clojure-mode
+                      clojure-test-mode
+                      nrepl
+                      haskell-mode
+                      )
+
+```
+
+* learn some emacs commands:
+  * `C-n` - move to next line
+  * `C-p` - move to previous line
+  * `C-f` - move forward one character
+  * `C-b` - move backward one character
+  * `M-f` - move forward one word
+  * `M-b` - move backward one word
+  * `C-e` - move to the end of the line
+  * `C-a` - move to the begining of the line
+  * `C-x C-f` - open/create a file
+  * `C-x C-s` - save current buffer
+  * `C-x b` - select an opened buffer
+  * `C-x C-b` - show the list of open buffers
+  * `C-z` - suspend emacs
+  * `C-x C-c` - exit emacs
+  * `C-g` - cancel the process of entering a command
+
+  
 
