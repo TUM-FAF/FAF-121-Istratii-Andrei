@@ -45,10 +45,10 @@ Working with SSH in a UNIX environment (in my case Ubuntu Linux) is quite simple
 
 In order to setup a working envirinment on the server I introduced the following commands:
 
-`mkdir ai` - create a folder to work with
-`cd ai`, `git init` - init an empty repo
-`emacs file.txt`, `Andrei Istratii`, `C-x C-s`, `C-x C-c` - create a file, open it in emacs editor, write my name, save, exit
-`git add .`, `git commit -m "initial commit"` - save changes to the repo
+* `mkdir ai` - create a folder to work with
+* `cd ai`, `git init` - init an empty repo
+* `emacs file.txt`, `Andrei Istratii`, `C-x C-s`, `C-x C-c` - create a file, open it in emacs editor, write my name, save, exit
+* `git add .`, `git commit -m "initial commit"` - save changes to the repo
 
 ### Create a bare Git repo and use it as a remote Git server
 
@@ -61,4 +61,28 @@ git remote add origin student@serverip:~/my_repo.git
 git push -u origin master # push master branch to the remote repo which is actually on the same machine
 
 ```
+
+
+### Create an SSH server and connect to it using public key authentication
+
+``` sh
+
+# On the server
+sudo apt-get install openssh-server
+
+# On client
+ssh-keygen
+cat ~/.ssh/id_rsa.pub | xsel -i # copy the text to clipboard
+ssh username@hostname
+# enter the password
+mkdir .ssh
+cd .ssh
+xsel -0 > authorized_keys
+exit # close connection
+ssh username@hostname # this time no password is required
+
+```
+
+
+
 
