@@ -89,7 +89,7 @@ ssh username@hostname # this time no password is required
 
 * add haskell-mode to emacs text editor by adding a line in the package list in `~/.emacs.d/init.el`
 
-``` emacs-lisp
+``` lisp
 
 (defvar my-packages '(starter-kit
                       starter-kit-lisp
