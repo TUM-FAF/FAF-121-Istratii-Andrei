@@ -88,22 +88,6 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 {
     switch (message)
     {
-    case WM_CREATE:
-        hWnd = hWnd_;
-        OnCreate();
-        break;
-
-
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            BeginPaint(hWnd, &ps);
-            OnPaint(ps.hdc);
-            EndPaint(hWnd, &ps);
-        }
-        break;
-
-
     case WM_ERASEBKGND:
         return 1;
         break;

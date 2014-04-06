@@ -204,7 +204,6 @@ void Canvas::OnLeftMouseButtonDown(int x, int y)
         HPEN pen = CreatePen((drawingOptions->noStroke ? PS_NULL : PS_SOLID), 1, drawingOptions->strokeColor);
 
         tempObject = new Elips(br, pen, p.x, p.y);
-        std::cout << "create rect\n";
         isDrawing = true;
     }
 }
@@ -214,7 +213,6 @@ void Canvas::OnLeftMouseButtonUp(int x, int y)
 {
     if (isDrawing)
     {
-        std::cout << "delete rect\n";
         objects.push_back(tempObject);
         tempObject = NULL;
         isDrawing = false;
@@ -243,7 +241,6 @@ void Canvas::OnMouseMove(int x, int y)
 
     if (isDrawing)
     {
-        std::cout << "update rect\n";
         tempObject->Update(p.x, p.y);
     }
 }

@@ -99,7 +99,6 @@ LRESULT Window::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
-
             BeginPaint(hWnd, &ps);
             OnPaint(ps.hdc);
             EndPaint(hWnd, &ps);
