@@ -21,6 +21,74 @@ void FrameWindow::OnCreate()
                     hWnd, NULL,
                     hInstance);
 
+    fillColorPicker.Create(40, 200, 20, 20,
+        hWnd, (HMENU)IDM_COLORPICKER_FILL,
+        hInstance, workspace.GetFillColor());
+
+    strokeColorPicker.Create(40, 230, 20, 20,
+        hWnd, (HMENU)IDM_COLORPICKER_STROKE,
+        hInstance, workspace.GetStrokeColor());
+
+
+    for (int i=0; i<16; ++i)
+    {
+        customColors[i] = RGB(255, 255, 255);
+    }
+}
+
+
+
+void FrameWindow::OnCommand(WPARAM wParam, LPARAM lParam)
+{
+    switch (LOWORD(wParam))
+    {
+    case IDM_TBITEM1:
+        std::cout << "TBITEM111\n";
+        break;
+
+    case IDM_COLORPICKER_FILL:
+        if (HIWORD(wParam) == STN_CLICKED)
+        {
+            CHOOSECOLOR chc = {0};
+            chc.lStructSize = sizeof(CHOOSECOLOR);
+            chc.hwndOwner = hWnd;
+            chc.lpCustColors = customColors;
+            chc.rgbResult = workspace.GetFillColor();
+            chc.Flags = CC_RGBINIT | CC_FULLOPEN;
+            if (ChooseColor(&chc) == TRUE)
+            {
+                workspace.SetFillColor(chc.rgbResult);
+                InvalidateRect(fillColorPicker.GetHWND(), NULL, FALSE);
+            }
+        }
+        break;
+
+    case IDM_COLORPICKER_STROKE:
+        if (HIWORD(wParam) == STN_CLICKED)
+        {
+            CHOOSECOLOR chc = {0};
+            chc.lStructSize = sizeof(CHOOSECOLOR);
+            chc.hwndOwner = hWnd;
+            chc.lpCustColors = customColors;
+            chc.rgbResult = workspace.GetStrokeColor();
+            chc.Flags = CC_RGBINIT | CC_FULLOPEN;
+            if (ChooseColor(&chc) == TRUE)
+            {
+                workspace.SetStrokeColor(chc.rgbResult);
+                InvalidateRect(strokeColorPicker.GetHWND(), NULL, FALSE);
+            }
+        }
+        break;
+
+    default:
+        break;
+    }
+}
+
+
+void FrameWindow::OnSize(int width, int height, WPARAM wParam)
+{
+    SetWindowPos(workspace.GetHWND(), HWND_TOP, 0, 0, width - 140, height - 40, SWP_NOMOVE|SWP_NOREPOSITION);
 }
 
 
@@ -37,49 +105,30 @@ LRESULT FrameWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM lPa
 {
     switch (message)
     {
-    case WM_CREATE:
-        {
-            hWnd = hWnd_;
-            OnCreate();
-        }
-        break;
-
-    case WM_SIZE:
-        {
-            int clientWidth = LOWORD(lParam);
-            int clientHeight = HIWORD(lParam);
-
-            SetWindowPos(workspace.GetHWND(), HWND_TOP, 0, 0, clientWidth - 140, clientHeight - 40, SWP_NOMOVE|SWP_NOREPOSITION);
-        }
-        break;
-
-    case WM_COMMAND:
-        switch (LOWORD(wParam))
-        {
-        case IDM_TBITEM1:
-            std::cout << "TBITEM1\n";
-            break;
-
-        default:
-            break;
-        }
-        break;
-
     case WM_MOUSEWHEEL:
         SendMessage(workspace.GetHWND(), message, wParam, lParam);
         break;
 
+    case WM_CTLCOLORSTATIC:
+        {
+            HWND hColorPicker = (HWND)lParam;
 
-    case WM_CLOSE:
-        DestroyWindow(hWnd_);
-        break;
+            if (hColorPicker == fillColorPicker.GetHWND())
+            {
+                HBRUSH hbr = fillColorPicker.UpdateBrush(workspace.GetFillColor());
+                return (LRESULT)hbr;
+            }
 
-    case WM_DESTROY:
-        PostQuitMessage(0);
+            if (hColorPicker == strokeColorPicker.GetHWND())
+            {
+                HBRUSH hbr = strokeColorPicker.UpdateBrush(workspace.GetStrokeColor());
+                return (LRESULT)hbr;
+            }
+        }
         break;
 
     default:
-        return DefWindowProc(hWnd_, message, wParam, lParam);
+        return Window::WndProc(hWnd_, message, wParam, lParam);
     }
 
     return 0;

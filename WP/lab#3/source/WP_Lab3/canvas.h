@@ -4,6 +4,9 @@
 #include <list>
 #include "drawable.h"
 #include "mouse.h"
+#include "drawing_options.h"
+
+#include <iostream>
 
 
 
@@ -11,7 +14,7 @@
 class Canvas : public IMouseListener
 {
 public:
-    Canvas();
+    Canvas(DrawingOptions * dops);
     ~Canvas();
 
     void Init(HDC hWndDC, int w, int h);
@@ -24,6 +27,7 @@ public:
     int GetWidth() { return width; }
     int GetHeight() { return height; }
     RECT GetZoomRect() { return zoomRect; }
+
 
     virtual void OnLeftMouseButtonDown(int x, int y);
     virtual void OnLeftMouseButtonUp(int x, int y);
@@ -50,6 +54,9 @@ private:
     bool isDrawing;
 
     std::list<Drawable*> objects;
+
+    DrawingOptions* drawingOptions;
+
 
 
     void ViewToCanvasCoords(POINT* pt);

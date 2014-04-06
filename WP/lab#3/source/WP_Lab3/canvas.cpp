@@ -10,7 +10,7 @@ float const Canvas::zoomSteps[] = {
 };
 
 
-Canvas::Canvas()
+Canvas::Canvas(DrawingOptions * dops)
 {
     hDC = NULL;
     hBMP = NULL;
@@ -24,11 +24,20 @@ Canvas::Canvas()
     tempObject = NULL;
 
     isDrawing = false;
+
+    drawingOptions = dops;
 }
 
 
 Canvas::~Canvas()
 {
+    std::list<Drawable*>::iterator itr;
+
+    for (itr = objects.begin(); itr != objects.end(); ++itr)
+    {
+        delete (*itr);
+    }
+
     if (hOldBMP) { SelectObject(hDC, hOldBMP); }
     if (hBMP) { DeleteObject(hBMP); }
     if (hDC) { DeleteDC(hDC); }
@@ -180,14 +189,21 @@ float Canvas::PrevZoomStep()
 
 void Canvas::OnLeftMouseButtonDown(int x, int y)
 {
-    POINT p;
-    p.x = x;
-    p.y = y;
-    ViewToCanvasCoords(&p);
-
     if (!isDrawing)
     {
-        tempObject = new Elips(p.x, p.y);
+        POINT p;
+        p.x = x;
+        p.y = y;
+        ViewToCanvasCoords(&p);
+
+        LOGBRUSH lbr;
+        lbr.lbStyle = (drawingOptions->noFill ? BS_NULL : BS_SOLID);
+        lbr.lbColor = drawingOptions->fillColor;
+
+        HBRUSH br = CreateBrushIndirect(&lbr);
+        HPEN pen = CreatePen((drawingOptions->noStroke ? PS_NULL : PS_SOLID), 1, drawingOptions->strokeColor);
+
+        tempObject = new Elips(br, pen, p.x, p.y);
         std::cout << "create rect\n";
         isDrawing = true;
     }
@@ -255,12 +271,18 @@ void Canvas::Update()
 {
     Clear();
 
+    HBRUSH backupBrush = (HBRUSH)GetCurrentObject(hDC, OBJ_BRUSH);
+    HPEN backupPen = (HPEN)GetCurrentObject(hDC, OBJ_PEN);
+
     std::list<Drawable*>::iterator itr;
 
     for (itr = objects.begin(); itr != objects.end(); ++itr)
     {
         (*itr)->Render(hDC);
     }
+
+    SelectObject(hDC, backupBrush);
+    SelectObject(hDC, backupPen);
 
     if (isDrawing)
     {

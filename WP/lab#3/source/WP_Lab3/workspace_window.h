@@ -5,6 +5,7 @@
 #include "window.h"
 #include "backbuffer.h"
 #include "mouse.h"
+#include "drawing_options.h"
 
 
 class Canvas;
@@ -16,8 +17,16 @@ public:
     WorkspaceWindow();
     void InitCanvas(int w, int h);
 
+    COLORREF GetFillColor();
+    COLORREF GetStrokeColor();
+    void SetFillColor(COLORREF col);
+    void SetStrokeColor(COLORREF col);
+    void SetNoFill(bool val);
+    void SetNoStroke(bool val);
+
 private:
     Canvas* canvas;
+    DrawingOptions drawingOptions;
     Backbuffer backbuffer;
 
     Mouse mouse;
@@ -26,7 +35,7 @@ private:
 
     virtual void OnCreate();
     virtual void OnPaint(HDC hDC);
-    virtual void OnSize(int w, int h);
+    virtual void OnSize(int width, int height, WPARAM wParam);
     virtual void OnDestroy();
 
 

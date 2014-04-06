@@ -75,11 +75,25 @@ LRESULT Window::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
         hWnd = hWnd_;
+        OnCreate();
         break;
 
+    case WM_SIZE:
+        {
+            OnSize(LOWORD(lParam), HIWORD(lParam), wParam);
+        }
+        break;
+
+    case WM_COMMAND:
+        OnCommand(wParam, lParam);
+        break;
 
     case WM_KEYDOWN:
         OnKeyDown(wParam, lParam);
+        return 0;
+
+    case WM_LBUTTONDOWN:
+        OnLeftMouseButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         return 0;
 
     case WM_PAINT:
@@ -91,6 +105,10 @@ LRESULT Window::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM lParam)
             EndPaint(hWnd, &ps);
         }
         return 0;
+
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
 
     case WM_DESTROY:
         PostQuitMessage(0);

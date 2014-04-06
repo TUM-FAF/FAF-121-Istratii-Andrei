@@ -7,11 +7,17 @@
 class Drawable
 {
 public:
-    Drawable() { };
-    virtual ~Drawable() { };
+    Drawable(HBRUSH hbr, HPEN hp);
+    virtual ~Drawable();
 
-    virtual void Render(HDC hDC) = 0;
+    void SetPenAndBrush(HDC hDC);
+    void Render(HDC hDC);
+    virtual void Draw(HDC hDC) = 0;
     virtual void Update(int x, int y) = 0;
+
+private:
+    HBRUSH hBrush;
+    HPEN hPen;
 };
 
 
@@ -19,7 +25,7 @@ public:
 class StartEndFigure : public Drawable
 {
 public:
-    StartEndFigure(int x, int y);
+    StartEndFigure(HBRUSH hbr, HPEN hp, int x, int y);
     virtual void Update(int x, int y);
 
 protected:
@@ -31,17 +37,17 @@ protected:
 class Rect : public StartEndFigure
 {
 public:
-    Rect(int x, int y);
+    Rect(HBRUSH hbr, HPEN hp, int x, int y);
 
-    virtual void Render(HDC hDC);
+    virtual void Draw(HDC hDC);
 };
 
 
 class Elips : public StartEndFigure
 {
 public:
-    Elips(int x, int y);
+    Elips(HBRUSH hbr, HPEN hp, int x, int y);
 
-    virtual void Render(HDC hDC);
+    virtual void Draw(HDC hDC);
 };
 

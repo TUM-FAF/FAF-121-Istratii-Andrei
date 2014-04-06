@@ -16,6 +16,14 @@ void WorkspaceWindow::FillWndClassEx(WNDCLASSEX & wcex)
 }
 
 
+COLORREF WorkspaceWindow::GetFillColor() { return drawingOptions.fillColor; }
+COLORREF WorkspaceWindow::GetStrokeColor() { return drawingOptions.strokeColor; }
+void WorkspaceWindow::SetFillColor(COLORREF col) { drawingOptions.fillColor = col; }
+void WorkspaceWindow::SetStrokeColor(COLORREF col) { drawingOptions.strokeColor = col; }
+void WorkspaceWindow::SetNoFill(bool val) { drawingOptions.noFill = val; }
+void WorkspaceWindow::SetNoStroke(bool val) { drawingOptions.noStroke = val; }
+
+
 void WorkspaceWindow::OnCreate()
 {
     RECT rct;
@@ -25,7 +33,7 @@ void WorkspaceWindow::OnCreate()
 
     backbuffer.Init(hDC, rct.right - rct.left, rct.bottom - rct.top);
 
-    canvas = new Canvas;
+    canvas = new Canvas(&drawingOptions);
     canvas->Init(hDC, 1024, 1024);
     mouse.RegisterListener(canvas);
 
@@ -64,9 +72,9 @@ void WorkspaceWindow::OnPaint(HDC hDC)
 }
 
 
-void WorkspaceWindow::OnSize(int w, int h)
+void WorkspaceWindow::OnSize(int width, int height, WPARAM wParam)
 {
-    backbuffer.Resize(w, h);
+    backbuffer.Resize(width, height);
 }
 
 
@@ -98,11 +106,6 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 
     case WM_ERASEBKGND:
         return 1;
-        break;
-
-
-    case WM_SIZE:
-        OnSize(LOWORD(lParam), HIWORD(lParam));
         break;
 
 
@@ -183,7 +186,7 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 
 
     default:
-        return DefWindowProc(hWnd_, message, wParam, lParam);
+        return Window::WndProc(hWnd_, message, wParam, lParam);
     }
 
     return 0;
