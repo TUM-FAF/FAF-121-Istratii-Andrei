@@ -105,7 +105,7 @@ void Canvas::Zoom(int mx, int my, int vw, int vh)
     zoomRect.right = zoomRect.left + newWidth;
     zoomRect.bottom = zoomRect.top + newHeight;
 
-    // AdjustPanLimits(vw, vh);
+    AdjustPanLimits(vw, vh);
 }
 
 
@@ -191,6 +191,9 @@ void Canvas::OnLeftMouseButtonDown(int x, int y)
 {
     if (!isDrawing)
     {
+        Tool tool = drawingOptions->tool;
+        if (!(tool >= ELLIPSE && tool <= RECTANGLE)) { return; }
+
         POINT p;
         p.x = x;
         p.y = y;
@@ -203,7 +206,19 @@ void Canvas::OnLeftMouseButtonDown(int x, int y)
         HBRUSH br = CreateBrushIndirect(&lbr);
         HPEN pen = CreatePen((drawingOptions->noStroke ? PS_NULL : PS_SOLID), 1, drawingOptions->strokeColor);
 
-        tempObject = new Elips(br, pen, p.x, p.y);
+        switch (tool)
+        {
+        case ELLIPSE:
+            tempObject = new Elips(br, pen, p.x, p.y);
+            break;
+
+        case RECTANGLE:
+            tempObject = new Rect(br, pen, p.x, p.y);
+            break;
+
+        default:
+            break;
+        }
         isDrawing = true;
     }
 }
@@ -234,13 +249,13 @@ void Canvas::OnRightMouseButtonUp(int x, int y)
 
 void Canvas::OnMouseMove(int x, int y)
 {
-    POINT p;
-    p.x = x;
-    p.y = y;
-    ViewToCanvasCoords(&p);
-
     if (isDrawing)
     {
+        POINT p;
+        p.x = x;
+        p.y = y;
+        ViewToCanvasCoords(&p);
+
         tempObject->Update(p.x, p.y);
     }
 }

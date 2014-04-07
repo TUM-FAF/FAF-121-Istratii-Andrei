@@ -113,12 +113,22 @@ void FrameWindow::OnCreate()
         hWnd, (HMENU)IDM_CHKBX_FILL,
         hInstance, 0);
 
+    if (!workspace.drawingOptions.noFill)
+    {
+        Button_SetCheck(GetDlgItem(hWnd, IDM_CHKBX_FILL), BST_CHECKED);
+    }
+
     CreateWindowEx(0, L"BUTTON", L"Stroke",
         WS_CHILD|WS_VISIBLE|BS_AUTOCHECKBOX,
         10, 240,
         70, 20,
         hWnd, (HMENU)IDM_CHKBX_STROKE,
         hInstance, 0);
+
+    if (!workspace.drawingOptions.noStroke)
+    {
+        Button_SetCheck(GetDlgItem(hWnd, IDM_CHKBX_STROKE), BST_CHECKED);
+    }
 
     CreateWindowEx(0, L"STATIC", L"Width:",
         WS_CHILD|WS_VISIBLE,
@@ -212,8 +222,7 @@ void FrameWindow::OnCommand(WPARAM wParam, LPARAM lParam)
 
 
         case IDM_CHKBX_FILL:
-            std::cout << "Checkbox clicked\n";
-            if (SendMessage(GetDlgItem(hWnd, IDM_CHKBX_FILL), BM_GETCHECK, 0, 0) == BST_CHECKED)
+            if (Button_GetCheck(GetDlgItem(hWnd, IDM_CHKBX_FILL)) == BST_CHECKED)
             {
                 workspace.drawingOptions.noFill = false;
             }
@@ -224,7 +233,7 @@ void FrameWindow::OnCommand(WPARAM wParam, LPARAM lParam)
             break;
 
         case IDM_CHKBX_STROKE:
-            if (SendMessage(GetDlgItem(hWnd, IDM_CHKBX_STROKE), BM_GETCHECK, 0, 0) == BST_CHECKED)
+            if (Button_GetCheck(GetDlgItem(hWnd, IDM_CHKBX_STROKE)) == BST_CHECKED)
             {
                 workspace.drawingOptions.noStroke = false;
             }

@@ -100,6 +100,21 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
     case WM_LBUTTONDOWN:
         SetCapture(hWnd);
         mouse.LeftButtonDown();
+        {
+            RECT rct;
+            GetClientRect(hWnd, &rct);
+
+            if (drawingOptions.tool == ZOOMIN)
+            {
+                canvas->StepZoomIn(mouse.X(), mouse.Y(), rct.right - rct.left, rct.bottom - rct.top);
+                InvalidateRect(hWnd, NULL, FALSE);
+            }
+            if (drawingOptions.tool == ZOOMOUT)
+            {
+                canvas->StepZoomOut(mouse.X(), mouse.Y(), rct.right - rct.left, rct.bottom - rct.top);
+                InvalidateRect(hWnd, NULL, FALSE);
+            }
+        }
         break;
 
 
@@ -134,23 +149,9 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
             if (wParam == MK_RBUTTON)
             {
                 RECT rct;
-                GetClientRect(hWnd_, &rct);
+                GetClientRect(hWnd, &rct);
                 canvas->Pan(mouse.DX(), mouse.DY(), rct.right - rct.left, rct.bottom - rct.top);
             }
-            InvalidateRect(hWnd, NULL, FALSE);
-        }
-        break;
-
-
-    case WM_KEYDOWN:
-        if (wParam == VK_UP)
-        {
-            canvas->StepZoomIn(mouse.X(), mouse.Y(), 0, 0);
-            InvalidateRect(hWnd, NULL, FALSE);
-        }
-        if (wParam == VK_DOWN)
-        {
-            canvas->StepZoomOut(mouse.X(), mouse.Y(), 0, 0);
             InvalidateRect(hWnd, NULL, FALSE);
         }
         break;
