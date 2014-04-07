@@ -256,7 +256,7 @@ void Canvas::OnMouseMove(int x, int y)
         p.y = y;
         ViewToCanvasCoords(&p);
 
-        tempObject->Update(p.x, p.y);
+        tempObject->Update(p.x, p.y, drawingOptions->shiftConstraint);
     }
 }
 

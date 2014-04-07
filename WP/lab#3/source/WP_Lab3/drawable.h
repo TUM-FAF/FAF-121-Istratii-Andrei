@@ -13,7 +13,7 @@ public:
     void SetPenAndBrush(HDC hDC);
     void Render(HDC hDC);
     virtual void Draw(HDC hDC) = 0;
-    virtual void Update(int x, int y) = 0;
+    virtual void Update(int x, int y, bool constraint) = 0;
 
 private:
     HBRUSH hBrush;
@@ -26,7 +26,7 @@ class StartEndFigure : public Drawable
 {
 public:
     StartEndFigure(HBRUSH hbr, HPEN hp, int x, int y);
-    virtual void Update(int x, int y);
+    virtual void Update(int x, int y, bool constraint);
 
 protected:
     POINT start;

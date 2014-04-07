@@ -42,10 +42,23 @@ StartEndFigure::StartEndFigure(HBRUSH hbr, HPEN hp, int x, int y)
 }
 
 
-void StartEndFigure::Update(int x, int y)
+void StartEndFigure::Update(int x, int y, bool constraint)
 {
     end.x = x;
     end.y = y;
+    if (constraint)
+    {
+        int dx = start.x - x;
+        int dy = start.y - y;
+        int delta = min(abs(dx), abs(dy));
+        end.x = start.x + delta*(dx<0 ? 1 : -1);
+        end.y = start.y + delta*(dy<0 ? 1 : -1);
+    }
+    else
+    {
+        end.x = x;
+        end.y = y;
+    }
 }
 
 

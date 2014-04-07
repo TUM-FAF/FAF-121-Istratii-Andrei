@@ -136,6 +136,21 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
         break;
 
 
+    case WM_KEYDOWN:
+        if (wParam == VK_SHIFT)
+        {
+            drawingOptions.shiftConstraint = true;
+        }
+        break;
+
+    case WM_KEYUP:
+        if (wParam == VK_SHIFT)
+        {
+            drawingOptions.shiftConstraint = false;
+        }
+        break;
+
+
     case WM_MOUSEMOVE:
         {
             SetFocus(hWnd);
