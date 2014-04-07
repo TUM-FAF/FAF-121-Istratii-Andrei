@@ -22,7 +22,7 @@ public:
         HWND hParent, HMENU hMenu,
         HINSTANCE hInst, COLORREF color)
     {
-        Window::CreateEx(WS_EX_CLIENTEDGE, L"STATIC", L"",
+        Window::CreateEx(WS_EX_STATICEDGE, L"STATIC", L"",
             WS_CHILD | WS_VISIBLE | SS_NOTIFY,
             x, y, nWidth, nHeight,
             hParent, hMenu, hInst);

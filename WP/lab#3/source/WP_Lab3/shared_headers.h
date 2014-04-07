@@ -26,7 +26,6 @@
 #include "drawable.h"
 #include "mouse.h"
 #include "tools.h"
-#include "toolbar.h"
 #include "colorpicker.h"
 #include "drawing_options.h"
 

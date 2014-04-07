@@ -110,8 +110,8 @@ LRESULT Window::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
+        OnDestroy();
+        break;
     }
 
     return DefWindowProc(hWnd_, message, wParam, lParam);

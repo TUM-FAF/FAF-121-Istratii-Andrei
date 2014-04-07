@@ -88,7 +88,6 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
     <ClCompile Include="drawable.cpp" />
     <ClCompile Include="frame_window.cpp" />
     <ClCompile Include="mouse.cpp" />
-    <ClCompile Include="toolbar.cpp" />
     <ClCompile Include="tools.cpp" />
     <ClCompile Include="window.cpp" />
     <ClCompile Include="winmain.cpp" />
@@ -104,7 +103,6 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
     <ClInclude Include="mouse.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="shared_headers.h" />
-    <ClInclude Include="toolbar.h" />
     <ClInclude Include="tools.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="workspace_window.h" />
@@ -115,6 +113,13 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
   <ItemGroup>
     <Image Include="..\..\assets\circles_small.bmp" />
     <Image Include="..\..\assets\duke.bmp" />
+    <Image Include="..\..\assets\ellipse.ico" />
+    <Image Include="..\..\assets\hand.ico" />
+    <Image Include="..\..\assets\pencil.ico" />
+    <Image Include="..\..\assets\pointer.ico" />
+    <Image Include="..\..\assets\rectangle.ico" />
+    <Image Include="..\..\assets\zoomin.ico" />
+    <Image Include="..\..\assets\zoomout.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

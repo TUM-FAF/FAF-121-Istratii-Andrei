@@ -16,14 +16,6 @@ void WorkspaceWindow::FillWndClassEx(WNDCLASSEX & wcex)
 }
 
 
-COLORREF WorkspaceWindow::GetFillColor() { return drawingOptions.fillColor; }
-COLORREF WorkspaceWindow::GetStrokeColor() { return drawingOptions.strokeColor; }
-void WorkspaceWindow::SetFillColor(COLORREF col) { drawingOptions.fillColor = col; }
-void WorkspaceWindow::SetStrokeColor(COLORREF col) { drawingOptions.strokeColor = col; }
-void WorkspaceWindow::SetNoFill(bool val) { drawingOptions.noFill = val; }
-void WorkspaceWindow::SetNoStroke(bool val) { drawingOptions.noStroke = val; }
-
-
 void WorkspaceWindow::OnCreate()
 {
     RECT rct;
@@ -161,11 +153,6 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
             canvas->StepZoomOut(mouse.X(), mouse.Y(), 0, 0);
             InvalidateRect(hWnd, NULL, FALSE);
         }
-        break;
-
-
-    case WM_DESTROY:
-        OnDestroy();
         break;
 
 

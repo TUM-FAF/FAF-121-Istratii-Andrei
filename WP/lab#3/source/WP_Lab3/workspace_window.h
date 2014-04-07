@@ -17,16 +17,11 @@ public:
     WorkspaceWindow();
     void InitCanvas(int w, int h);
 
-    COLORREF GetFillColor();
-    COLORREF GetStrokeColor();
-    void SetFillColor(COLORREF col);
-    void SetStrokeColor(COLORREF col);
-    void SetNoFill(bool val);
-    void SetNoStroke(bool val);
+    DrawingOptions drawingOptions;
 
 private:
     Canvas* canvas;
-    DrawingOptions drawingOptions;
+    
     Backbuffer backbuffer;
 
     Mouse mouse;

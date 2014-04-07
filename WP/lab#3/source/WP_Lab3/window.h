@@ -42,6 +42,7 @@ private:
     virtual void OnLeftMouseButtonDown(int x, int y) { }
     virtual void OnSize(int width, int height, WPARAM wParam) { }
     virtual void OnCommand(WPARAM wParam, LPARAM lParam) { }
+    virtual void OnDestroy() { }
 
     static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

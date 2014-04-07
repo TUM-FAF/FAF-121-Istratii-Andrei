@@ -5,7 +5,7 @@
 
 enum Tool
 {
-    SELECT, ELLIPSE, RECTANGLE, PEN, ERASER
+    SELECT, PENCIL, ELLIPSE, RECTANGLE, ZOOMIN, ZOOMOUT, PEN, ERASER
 };
 
 struct DrawingOptions

@@ -64,3 +64,14 @@ bool LoadConfigFile(char const * filePath, std::map<std::string, std::string> & 
     return true;
 }
 
+
+void SetFontForChildren(HWND parent, HFONT font)
+{
+    EnumChildWindows(parent, SetFontProc, (LPARAM) font);
+}
+
+BOOL CALLBACK SetFontProc(HWND child, LPARAM lParam)
+{
+    SendMessage(child, WM_SETFONT, (WPARAM)lParam, TRUE);
+    return TRUE;
+}
