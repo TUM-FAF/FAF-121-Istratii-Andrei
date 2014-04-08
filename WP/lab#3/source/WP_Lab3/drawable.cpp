@@ -82,3 +82,41 @@ void Elips::Draw(HDC hDC)
     Ellipse(hDC, start.x, start.y, end.x, end.y);
 }
 
+
+Bezier::Bezier(HBRUSH hbr, HPEN hp, int x, int y)
+    : Drawable(hbr, hp)
+{
+    POINT p;
+    p.x = 100;
+    p.y = 100;
+    points.push_back(p);
+    pointTypes.push_back(PT_MOVETO);
+
+    p.x = 100;
+    p.y = 200;
+    points.push_back(p);
+    pointTypes.push_back(PT_BEZIERTO);
+
+    p.x = 200;
+    p.y = 200;
+    points.push_back(p);
+    pointTypes.push_back(PT_BEZIERTO);
+
+    p.x = 200;
+    p.y = 100;
+    points.push_back(p);
+    pointTypes.push_back(PT_BEZIERTO);
+
+    std::cout << "Bezier drawn\n";
+}
+
+void Bezier::Draw(HDC hDC)
+{
+    PolyDraw(hDC, &points[0], &pointTypes[0], 4);
+}
+
+void Bezier::Update(int x, int y, bool constraint)
+{
+
+}
+

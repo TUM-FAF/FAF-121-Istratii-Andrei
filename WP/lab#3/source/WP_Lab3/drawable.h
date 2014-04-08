@@ -2,7 +2,7 @@
 #pragma once
 
 #include <windows.h>
-
+#include <vector>
 
 class Drawable
 {
@@ -49,5 +49,21 @@ public:
     Elips(HBRUSH hbr, HPEN hp, int x, int y);
 
     virtual void Draw(HDC hDC);
+};
+
+
+class Bezier : public Drawable
+{
+public:
+    Bezier(HBRUSH hbr, HPEN hp, int x, int y);
+
+    virtual void Draw(HDC hDC);
+
+    virtual void Update(int x, int y, bool constraint);
+
+private:
+    std::vector<POINT> points;
+
+    std::vector<BYTE> pointTypes;
 };
 

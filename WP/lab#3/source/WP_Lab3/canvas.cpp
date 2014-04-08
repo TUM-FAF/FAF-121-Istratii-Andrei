@@ -192,7 +192,7 @@ void Canvas::OnLeftMouseButtonDown(int x, int y)
     if (!isDrawing)
     {
         Tool tool = drawingOptions->tool;
-        if (!(tool >= ELLIPSE && tool <= RECTANGLE)) { return; }
+        if (!(tool >= PENCIL && tool <= RECTANGLE)) { return; }
 
         POINT p;
         p.x = x;
@@ -208,6 +208,10 @@ void Canvas::OnLeftMouseButtonDown(int x, int y)
 
         switch (tool)
         {
+        case PENCIL:
+            tempObject = new Bezier(br, pen, p.x, p.y);
+            break;
+
         case ELLIPSE:
             tempObject = new Elips(br, pen, p.x, p.y);
             break;
