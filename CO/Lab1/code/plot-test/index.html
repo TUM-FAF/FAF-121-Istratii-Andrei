@@ -58,26 +58,38 @@
         </p>
         <p>
           Now, our goal is, given the constants <span class="latex">m</span>, <span class="latex">c</span>, <span class="latex">k</span> and the function <span class="latex">F(t)</span>, to compute the position <i><b>x</b></i> as a function of time. This requires a numerical method because the function of the external force is assumed to be unknown as it can be anything, thus we cannot program an analytic solution.
-        </p>
-
-        
+        </p>        
       </div>
+
+      <hr/>
+      
     </div>
   </div>
-  
 
   <div class="row">
-    <a id="start" href="#">Start simulation</a>
-    <br/>
-    <a id="stop" href="#">Stop simulation</a>
-    <br/>
+    <div class="large-4 medium-4 columns">
+      <div id="spring"></div>
+    </div>
+    <div class="large-8 medium-8 columns">
+      Configuration goes here
+      <hr/>
+      <a id="start" class="button radius small">Start simulation</a>
+      <a id="stop" class="button radius small">Stop simulation</a>
+    </div>
+    <div class="large-12 columns">
+      <hr/>
+    </div>
+  </div>
 
-    <div id="spring" style="float:right;margin-right:100px;"></div>
-    <div id="graph1"></div> 
-    <br/>
-    <div id="graph2"></div>
-    <br/>
-    <div id="graph3"></div>
+
+  <div class="row">
+    <div class="large-12 columns">      
+      <div id="graph1" class="graph"></div> 
+      <br/>
+      <div id="graph2" class="graph"></div>
+      <br/>
+      <div id="graph3" class="graph"></div>
+    </div>
   </div>
 
     

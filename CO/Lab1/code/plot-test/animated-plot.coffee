@@ -5,9 +5,13 @@ $ ->
   simulation = new Simulation
 
   # bind links
-  $("#start").click -> simulation.startSimulation()
+  $("#start").click ->
+    simulation.startSimulation()
+    #$(this).addClass("disabled")
 
   $("#stop").click -> simulation.stopSimulation()
+
+  $(window).on "resize", -> simulation.onResize()
 
 
 
@@ -21,16 +25,16 @@ class Simulation
     @spring.reset(0, 0)
 
     @graphs = []
-    @graphs.push new Graph "graph1", 800, 200, 0.5 # x
+    @graphs.push new Graph "graph1", 0.5 # x
     #@graphs.push new Graph "graph2", 800, 200, 0.5 # v
-    @graphs.push new Graph "graph3", 800, 200, 0.5 # F(t)
+    @graphs.push new Graph "graph3", 0.5 # F(t)
 
     @paths = []
     @paths.push new Path @graphs[0], "blue"
     @paths.push new Path @graphs[0], "red"
     @paths.push new Path @graphs[1], "blue"
 
-    @anim = new SpringAnimation "spring", 200, 200
+    @anim = new SpringAnimation "spring"
 
   startSimulation: () ->
     console.log "Simulation started"
@@ -44,6 +48,12 @@ class Simulation
     console.log "Simulation ended"
 
   resetSimulation: () ->
+
+  onResize: () ->
+    @anim.resize()
+    for graph in @graphs
+      graph.resize()
+
 
   simulate: () ->
     t = @counter()
@@ -69,14 +79,25 @@ class Simulation
 
 
 class Graph
-  constructor: (graphID, width, height, delta) ->
+  constructor: (graphID, delta) ->
+
+    @graphID = graphID
 
     n = 100
-    margin = {top: 10, right: 20, bottom: 10, left: 20}
+    margin = {top: 10, right: 20, bottom: 10, left: 50}
 
-    @svg = d3.select("##{graphID}").append("svg")
+    aspectRatio = 3
+
+    w = $("##{@graphID}").width()
+
+    width = w - margin.left - margin.right
+    height = w/aspectRatio - margin.top - margin.bottom
+
+    @svg = d3.select("##{@graphID}").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
+      .attr('viewBox', '0 0 '+ (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+      .attr('preserveAspectRatio', 'xMinYMin')
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
@@ -117,6 +138,13 @@ class Graph
     @svg.append("g")
       .attr("class", "y axis")
       .call(d3.svg.axis().scale(@yScale).orient("left"))
+
+  resize: () ->
+    size = $("##{@graphID}").width()
+    console.log size
+    d3.select("##{@graphID} svg")
+      .attr("width", size)
+      .attr("height", size/3)
 
 
 
@@ -199,12 +227,19 @@ rk4 = (fs, h, t, ys) ->
 
 
 class SpringAnimation
-  constructor: (graphID, width, height) ->
-    margin = {top: 20, right: 20, bottom: 20, left: 20}
+  constructor: (graphID) ->
+    margin = {top: 5, right: 5, bottom: 5, left: 5}
+
+    width = $("##{graphID}").width() - margin.left - margin.right
+    height = width
+
+    @graphID = graphID
 
     @svg = d3.select("##{graphID}").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
+      .attr('viewBox', '0 0 '+ (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+      .attr('preserveAspectRatio', 'xMinYMin')
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
@@ -222,8 +257,9 @@ class SpringAnimation
       .attr("width", width)
       .attr("height", height)
       .attr("fill", "none")
-      .attr("stroke", "black")
-      .attr("stroke-width", 0.5)
+      .attr("vector-effect", "non-scaling-stroke")
+      .attr("stroke", "#AAAAAA")
+      .attr("stroke-width", 0.4)
 
     @xScale = d3.scale.linear()
       .domain([0, 10])
@@ -233,7 +269,7 @@ class SpringAnimation
       .domain([0, 10])             # TODO: support changes
       .range([0, height])
 
-    
+
 
     @lineGenerator = d3.svg.line()
       .x( (d) -> @xScale(d[0]) )
@@ -283,7 +319,15 @@ class SpringAnimation
     @circle = @svg.append("circle")
       .attr("cx", @xScale(5))
       .attr("cy", @yScale(6))
-      .attr("r", 20)
+      .attr("r", @xScale(1))
+
+
+  resize: () ->
+    size = $("##{@graphID}").width()
+    console.log size
+    d3.select("##{@graphID} svg")
+      .attr("width", size)
+      .attr("height", size)
 
 
   update: (delta) ->

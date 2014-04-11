@@ -8,8 +8,11 @@
     $("#start").click(function() {
       return simulation.startSimulation();
     });
-    return $("#stop").click(function() {
+    $("#stop").click(function() {
       return simulation.stopSimulation();
+    });
+    return $(window).on("resize", function() {
+      return simulation.onResize();
     });
   });
 
@@ -20,13 +23,13 @@
       this.spring = new Spring;
       this.spring.reset(0, 0);
       this.graphs = [];
-      this.graphs.push(new Graph("graph1", 800, 200, 0.5));
-      this.graphs.push(new Graph("graph3", 800, 200, 0.5));
+      this.graphs.push(new Graph("graph1", 0.5));
+      this.graphs.push(new Graph("graph3", 0.5));
       this.paths = [];
       this.paths.push(new Path(this.graphs[0], "blue"));
       this.paths.push(new Path(this.graphs[0], "red"));
       this.paths.push(new Path(this.graphs[1], "blue"));
-      this.anim = new SpringAnimation("spring", 200, 200);
+      this.anim = new SpringAnimation("spring");
     }
 
     Simulation.prototype.startSimulation = function() {
@@ -48,6 +51,18 @@
     };
 
     Simulation.prototype.resetSimulation = function() {};
+
+    Simulation.prototype.onResize = function() {
+      var graph, _i, _len, _ref, _results;
+      this.anim.resize();
+      _ref = this.graphs;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        graph = _ref[_i];
+        _results.push(graph.resize());
+      }
+      return _results;
+    };
 
     Simulation.prototype.simulate = function() {
       var path, t, v, x, _i, _len, _ref, _ref1, _results;
@@ -72,16 +87,21 @@
   })();
 
   Graph = (function() {
-    function Graph(graphID, width, height, delta) {
-      var margin, n;
+    function Graph(graphID, delta) {
+      var aspectRatio, height, margin, n, w, width;
+      this.graphID = graphID;
       n = 100;
       margin = {
         top: 10,
         right: 20,
         bottom: 10,
-        left: 20
+        left: 50
       };
-      this.svg = d3.select("#" + graphID).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      aspectRatio = 3;
+      w = $("#" + this.graphID).width();
+      width = w - margin.left - margin.right;
+      height = w / aspectRatio - margin.top - margin.bottom;
+      this.svg = d3.select("#" + this.graphID).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom)).attr('preserveAspectRatio', 'xMinYMin').append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
       this.svg.append("defs").append("clipPath").attr("id", "clip").append("rect").attr("width", width).attr("height", height);
       this.svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("stroke", "black").attr("stroke-width", 0.5);
       this.xScale = d3.scale.linear().domain([0, n - 1]).range([0, width]);
@@ -89,6 +109,13 @@
       this.svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + this.yScale(0) + ")").call(d3.svg.axis().scale(this.xScale).orient("bottom").ticks(0));
       this.svg.append("g").attr("class", "y axis").call(d3.svg.axis().scale(this.yScale).orient("left"));
     }
+
+    Graph.prototype.resize = function() {
+      var size;
+      size = $("#" + this.graphID).width();
+      console.log(size);
+      return d3.select("#" + this.graphID + " svg").attr("width", size).attr("height", size / 3);
+    };
 
     return Graph;
 
@@ -204,17 +231,20 @@
   };
 
   SpringAnimation = (function() {
-    function SpringAnimation(graphID, width, height) {
-      var margin;
+    function SpringAnimation(graphID) {
+      var height, margin, width;
       margin = {
-        top: 20,
-        right: 20,
-        bottom: 20,
-        left: 20
+        top: 5,
+        right: 5,
+        bottom: 5,
+        left: 5
       };
-      this.svg = d3.select("#" + graphID).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      width = $("#" + graphID).width() - margin.left - margin.right;
+      height = width;
+      this.graphID = graphID;
+      this.svg = d3.select("#" + graphID).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom)).attr('preserveAspectRatio', 'xMinYMin').append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
       this.svg.append("defs").append("clipPath").attr("id", "clip").append("rect").attr("width", width).attr("height", height);
-      this.svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("stroke", "black").attr("stroke-width", 0.5);
+      this.svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("vector-effect", "non-scaling-stroke").attr("stroke", "#AAAAAA").attr("stroke-width", 0.4);
       this.xScale = d3.scale.linear().domain([0, 10]).range([0, width]);
       this.yScale = d3.scale.linear().domain([0, 10]).range([0, height]);
       this.lineGenerator = d3.svg.line().x(function(d) {
@@ -240,8 +270,15 @@
        */
       this.initData = [[5, 0], [5, 0.75], [4, 1], [6, 1.5], [4, 2], [6, 2.5], [4, 3], [6, 3.5], [4, 4], [5, 4.25], [5, 6]];
       this.path = this.svg.append("g").attr("clip-path", "url(#clip)").append("path").attr("d", this.lineGenerator(this.initData)).attr("stroke", "blue").attr("stroke-width", 2).attr("fill", "none");
-      this.circle = this.svg.append("circle").attr("cx", this.xScale(5)).attr("cy", this.yScale(6)).attr("r", 20);
+      this.circle = this.svg.append("circle").attr("cx", this.xScale(5)).attr("cy", this.yScale(6)).attr("r", this.xScale(1));
     }
+
+    SpringAnimation.prototype.resize = function() {
+      var size;
+      size = $("#" + this.graphID).width();
+      console.log(size);
+      return d3.select("#" + this.graphID + " svg").attr("width", size).attr("height", size);
+    };
 
     SpringAnimation.prototype.update = function(delta) {
       this.circle.transition().duration(50).ease("linear").attr("transform", "translate(0, " + (this.yScale(delta * 2)) + ")");
