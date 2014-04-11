@@ -23,10 +23,14 @@ $ ->
   #@graphs.push new Graph "graph2", 800, 200, 0.5 # v
   graphs.push new Graph "graph3", 0.5 # F(t)
 
-  paths = []
-  paths.push new Path graphs[0], "blue"
-  paths.push new Path graphs[0], "red"
-  paths.push new Path graphs[1], "blue"
+  
+  positionPath = new Path "blue"
+  velocityPath = new Path "red"
+  extForce = new Path "blue"
+
+  graphs[0].attachPath positionPath
+  graphs[0].attachPath velocityPath
+  graphs[1].attachPath extForce
 
   anim = new SpringAnimation "spring"
 
@@ -53,21 +57,19 @@ $ ->
 
     [x, v] = spring.next(0.5)
 
-    paths[0].data.push(x)
-    paths[1].data.push(v)
-    paths[2].data.push(spring.externalForce(t-0.5))
+    positionPath.data.push(x)
+    velocityPath.data.push(v)
+    extForce.data.push(spring.externalForce(t-0.5))
 
-    for path in paths
-      path.path
-        .attr("d", path.lineGenerator(path.data))
-        .attr("transform", null)
-        .transition()
-        .duration(50)
-        .ease("linear")
-        .attr("transform", "translate(" + graphs[0].xScale(-1) + ",0)")
-      path.data.shift()
+    for g in graphs
+      g.updateState()
+      g.translate()
+    
+    positionPath.data.shift()
+    velocityPath.data.shift()
+    extForce.data.shift()
 
-      anim.update(x)
+    anim.update(x)
 
 
 
@@ -76,15 +78,17 @@ class Graph
 
     @graphID = graphID
 
-    n = 100
+    @paths = []
+
+    @n = 100
     margin = {top: 10, right: 20, bottom: 10, left: 50}
 
-    aspectRatio = 3
+    @aspectRatio = 3
 
     w = $("##{@graphID}").width()
 
     width = w - margin.left - margin.right
-    height = w/aspectRatio - margin.top - margin.bottom
+    height = w/@aspectRatio - margin.top - margin.bottom
 
     @svg = d3.select("##{@graphID}").append("svg")
       .attr("width", width + margin.left + margin.right)
@@ -112,13 +116,23 @@ class Graph
       .attr("stroke-width", 0.5)
 
     @xScale = d3.scale.linear()
-      .domain([0, n-1])
+      .domain([0, @n-1])
       .range([0, width])
 
 
     @yScale = d3.scale.linear()
       .domain([-2,2])             # TODO: support changes
       .range([height, 0])
+
+    # for closures in line generators
+    xS = @xScale
+    yS = @yScale
+
+    @lineGenerator = d3.svg.line()
+      .x( (d,i) -> xS(i) )
+      .y( (d,i) -> yS(d) )
+      .interpolate("basis")
+
 
 
     # x axis
@@ -132,37 +146,52 @@ class Graph
       .attr("class", "y axis")
       .call(d3.svg.axis().scale(@yScale).orient("left"))
 
+
+  attachPath: (p) ->
+    while p.data.length < @n
+      p.data.push(0)
+
+    @paths.push(p)
+    @svg.append(() -> p.htmlNode.node())
+
+
+  updateState: () ->
+    for p in @paths
+      p.interpretData(@lineGenerator)
+
+  translate: () ->
+    for p in @paths
+      p.pathElement.attr("transform", null)
+        .transition()
+        .duration(50)
+        .ease("linear")
+        .attr("transform", "translate(" + @xScale(-1) + ",0)")
+
   resize: () ->
-    size = $("##{@graphID}").width()
-    console.log size
+    width = $("##{@graphID}").width()
+    console.log width
     d3.select("##{@graphID} svg")
-      .attr("width", size)
-      .attr("height", size/3)
+      .attr("width", width)
+      .attr("height", width/@aspectRatio)
 
 
 
 
 class Path
-  constructor: (graph, color) ->
+  constructor: (color) ->
 
-    n = 100
+    @data = []    
 
-    @data = []
-    @data.push 0 while @data.length < n # init data with zeros
-
-    @lineGenerator = d3.svg.line()
-      .x( (d,i) -> graph.xScale(i) )
-      .y( (d,i) -> graph.yScale(d) )
-      .interpolate("basis")
-
-
-    @path = graph.svg.append("g")
+    @htmlNode = d3.select(document.createElement("g"))
       .attr("clip-path", "url(#clip)")
-      .append("path")
-      .attr("d", @lineGenerator(@data))
+      
+    @pathElement = @htmlNode.append("path")
       .attr("stroke", color)
       .attr("stroke-width", 2)
       .attr("fill", "none")
+
+  interpretData: (generator) ->
+    @pathElement.attr("d", generator(@data))
 
 
 

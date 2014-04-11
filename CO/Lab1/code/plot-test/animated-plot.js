@@ -3,7 +3,7 @@
   var Graph, Path, Spring, SpringAnimation, makeCounter, rk4;
 
   $(function() {
-    var anim, counter, graphs, isRunning, onResize, paths, process, resetSimulation, simulate, spring, startSimulation, stopSimulation;
+    var anim, counter, extForce, graphs, isRunning, onResize, positionPath, process, resetSimulation, simulate, spring, startSimulation, stopSimulation, velocityPath;
     $("#start").click(function() {
       return startSimulation();
     });
@@ -21,10 +21,12 @@
     graphs = [];
     graphs.push(new Graph("graph1", 0.5));
     graphs.push(new Graph("graph3", 0.5));
-    paths = [];
-    paths.push(new Path(graphs[0], "blue"));
-    paths.push(new Path(graphs[0], "red"));
-    paths.push(new Path(graphs[1], "blue"));
+    positionPath = new Path("blue");
+    velocityPath = new Path("red");
+    extForce = new Path("blue");
+    graphs[0].attachPath(positionPath);
+    graphs[0].attachPath(velocityPath);
+    graphs[1].attachPath(extForce);
     anim = new SpringAnimation("spring");
     startSimulation = function() {
       console.log("Simulation started");
@@ -52,52 +54,93 @@
       return _results;
     };
     return simulate = function() {
-      var path, t, v, x, _i, _len, _ref, _results;
+      var g, t, v, x, _i, _len, _ref;
       t = counter();
       _ref = spring.next(0.5), x = _ref[0], v = _ref[1];
-      paths[0].data.push(x);
-      paths[1].data.push(v);
-      paths[2].data.push(spring.externalForce(t - 0.5));
-      _results = [];
-      for (_i = 0, _len = paths.length; _i < _len; _i++) {
-        path = paths[_i];
-        path.path.attr("d", path.lineGenerator(path.data)).attr("transform", null).transition().duration(50).ease("linear").attr("transform", "translate(" + graphs[0].xScale(-1) + ",0)");
-        path.data.shift();
-        _results.push(anim.update(x));
+      positionPath.data.push(x);
+      velocityPath.data.push(v);
+      extForce.data.push(spring.externalForce(t - 0.5));
+      for (_i = 0, _len = graphs.length; _i < _len; _i++) {
+        g = graphs[_i];
+        g.updateState();
+        g.translate();
       }
-      return _results;
+      positionPath.data.shift();
+      velocityPath.data.shift();
+      extForce.data.shift();
+      return anim.update(x);
     };
   });
 
   Graph = (function() {
     function Graph(graphID, delta) {
-      var aspectRatio, height, margin, n, w, width;
+      var height, margin, w, width, xS, yS;
       this.graphID = graphID;
-      n = 100;
+      this.paths = [];
+      this.n = 100;
       margin = {
         top: 10,
         right: 20,
         bottom: 10,
         left: 50
       };
-      aspectRatio = 3;
+      this.aspectRatio = 3;
       w = $("#" + this.graphID).width();
       width = w - margin.left - margin.right;
-      height = w / aspectRatio - margin.top - margin.bottom;
+      height = w / this.aspectRatio - margin.top - margin.bottom;
       this.svg = d3.select("#" + this.graphID).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom)).attr('preserveAspectRatio', 'xMinYMin').append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
       this.svg.append("defs").append("clipPath").attr("id", "clip").append("rect").attr("width", width).attr("height", height);
       this.svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("stroke", "black").attr("stroke-width", 0.5);
-      this.xScale = d3.scale.linear().domain([0, n - 1]).range([0, width]);
+      this.xScale = d3.scale.linear().domain([0, this.n - 1]).range([0, width]);
       this.yScale = d3.scale.linear().domain([-2, 2]).range([height, 0]);
+      xS = this.xScale;
+      yS = this.yScale;
+      this.lineGenerator = d3.svg.line().x(function(d, i) {
+        return xS(i);
+      }).y(function(d, i) {
+        return yS(d);
+      }).interpolate("basis");
       this.svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + this.yScale(0) + ")").call(d3.svg.axis().scale(this.xScale).orient("bottom").ticks(0));
       this.svg.append("g").attr("class", "y axis").call(d3.svg.axis().scale(this.yScale).orient("left"));
     }
 
+    Graph.prototype.attachPath = function(p) {
+      while (p.data.length < this.n) {
+        p.data.push(0);
+      }
+      this.paths.push(p);
+      return this.svg.append(function() {
+        return p.htmlNode.node();
+      });
+    };
+
+    Graph.prototype.updateState = function() {
+      var p, _i, _len, _ref, _results;
+      _ref = this.paths;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        p = _ref[_i];
+        _results.push(p.interpretData(this.lineGenerator));
+      }
+      return _results;
+    };
+
+    Graph.prototype.translate = function() {
+      var p, _i, _len, _ref, _results;
+      _ref = this.paths;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        p = _ref[_i];
+        _results.push(p.pathElement.attr("transform", null).transition().duration(50).ease("linear").attr("transform", "translate(" + this.xScale(-1) + ",0)"));
+      }
+      return _results;
+    };
+
     Graph.prototype.resize = function() {
-      var size;
-      size = $("#" + this.graphID).width();
-      console.log(size);
-      return d3.select("#" + this.graphID + " svg").attr("width", size).attr("height", size / 3);
+      var width;
+      width = $("#" + this.graphID).width();
+      console.log(width);
+      return d3.select("#" + this.graphID + " svg").attr("width", width).attr("height", width / this.aspectRatio);
     };
 
     return Graph;
@@ -105,20 +148,15 @@
   })();
 
   Path = (function() {
-    function Path(graph, color) {
-      var n;
-      n = 100;
+    function Path(color) {
       this.data = [];
-      while (this.data.length < n) {
-        this.data.push(0);
-      }
-      this.lineGenerator = d3.svg.line().x(function(d, i) {
-        return graph.xScale(i);
-      }).y(function(d, i) {
-        return graph.yScale(d);
-      }).interpolate("basis");
-      this.path = graph.svg.append("g").attr("clip-path", "url(#clip)").append("path").attr("d", this.lineGenerator(this.data)).attr("stroke", color).attr("stroke-width", 2).attr("fill", "none");
+      this.htmlNode = d3.select(document.createElement("g")).attr("clip-path", "url(#clip)");
+      this.pathElement = this.htmlNode.append("path").attr("stroke", color).attr("stroke-width", 2).attr("fill", "none");
     }
+
+    Path.prototype.interpretData = function(generator) {
+      return this.pathElement.attr("d", generator(this.data));
+    };
 
     return Path;
 
