@@ -2,79 +2,72 @@
 
 $ ->
 
-  simulation = new Simulation
-
   # bind links
   $("#start").click ->
-    simulation.startSimulation()
+    startSimulation()
     #$(this).addClass("disabled")
 
-  $("#stop").click -> simulation.stopSimulation()
+  $("#stop").click -> stopSimulation()
 
-  $(window).on "resize", -> simulation.onResize()
+  $(window).on "resize", -> onResize()
+  
+  isRunning = false
+  process = null
+  counter = makeCounter(0.5)
 
+  spring = new Spring
+  spring.reset(0, 0)
 
+  graphs = []
+  graphs.push new Graph "graph1", 0.5 # x
+  #@graphs.push new Graph "graph2", 800, 200, 0.5 # v
+  graphs.push new Graph "graph3", 0.5 # F(t)
 
+  paths = []
+  paths.push new Path graphs[0], "blue"
+  paths.push new Path graphs[0], "red"
+  paths.push new Path graphs[1], "blue"
 
-class Simulation
-  constructor: () ->
-    @isRunning = false
-    @counter = makeCounter(0.5)
+  anim = new SpringAnimation "spring"
 
-    @spring = new Spring
-    @spring.reset(0, 0)
-
-    @graphs = []
-    @graphs.push new Graph "graph1", 0.5 # x
-    #@graphs.push new Graph "graph2", 800, 200, 0.5 # v
-    @graphs.push new Graph "graph3", 0.5 # F(t)
-
-    @paths = []
-    @paths.push new Path @graphs[0], "blue"
-    @paths.push new Path @graphs[0], "red"
-    @paths.push new Path @graphs[1], "blue"
-
-    @anim = new SpringAnimation "spring"
-
-  startSimulation: () ->
+  startSimulation = () ->
     console.log "Simulation started"
-    that = this
-    @process = setInterval((() -> that.simulate()), 100) unless @isRunning
-    @isRunning = true
+    process = setInterval((() -> simulate()), 100) unless isRunning
+    isRunning = true
 
-  stopSimulation: () ->
-    clearInterval @process
-    @isRunning = false
+  stopSimulation = () ->
+    clearInterval process
+    isRunning = false
     console.log "Simulation ended"
 
-  resetSimulation: () ->
+  resetSimulation = () ->
 
-  onResize: () ->
-    @anim.resize()
-    for graph in @graphs
+  onResize = () ->
+    anim.resize()
+    for graph in graphs
       graph.resize()
 
 
-  simulate: () ->
-    t = @counter()
+  simulate = () ->
+    t = counter()
 
-    [x, v] = @spring.next(0.5)
+    [x, v] = spring.next(0.5)
 
-    @paths[0].data.push(x)
-    @paths[1].data.push(v)
-    @paths[2].data.push(@spring.externalForce(t-0.5))
+    paths[0].data.push(x)
+    paths[1].data.push(v)
+    paths[2].data.push(spring.externalForce(t-0.5))
 
-    for path in @paths
+    for path in paths
       path.path
         .attr("d", path.lineGenerator(path.data))
         .attr("transform", null)
         .transition()
         .duration(50)
         .ease("linear")
-        .attr("transform", "translate(" + @graphs[0].xScale(-1) + ",0)")
+        .attr("transform", "translate(" + graphs[0].xScale(-1) + ",0)")
       path.data.shift()
 
-      @anim.update(x)
+      anim.update(x)
 
 
 
