@@ -83,7 +83,7 @@ class Graph
     @n = 100
     margin = {top: 10, right: 20, bottom: 10, left: 50}
 
-    @aspectRatio = 3
+    @aspectRatio = 4
 
     w = $("##{@graphID}").width()
 
@@ -181,11 +181,11 @@ class Path
   constructor: (color) ->
 
     @data = []    
-
-    @htmlNode = d3.select(document.createElement("g"))
+    xmlns = "http://www.w3.org/2000/svg"
+    @htmlNode = d3.select(document.createElementNS(xmlns, "g"))
       .attr("clip-path", "url(#clip)")
       
-    @pathElement = @htmlNode.append("path")
+    @pathElement = @htmlNode.append("svg:path")
       .attr("stroke", color)
       .attr("stroke-width", 2)
       .attr("fill", "none")

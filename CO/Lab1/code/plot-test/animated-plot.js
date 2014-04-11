@@ -84,7 +84,7 @@
         bottom: 10,
         left: 50
       };
-      this.aspectRatio = 3;
+      this.aspectRatio = 4;
       w = $("#" + this.graphID).width();
       width = w - margin.left - margin.right;
       height = w / this.aspectRatio - margin.top - margin.bottom;
@@ -149,9 +149,11 @@
 
   Path = (function() {
     function Path(color) {
+      var xmlns;
       this.data = [];
-      this.htmlNode = d3.select(document.createElement("g")).attr("clip-path", "url(#clip)");
-      this.pathElement = this.htmlNode.append("path").attr("stroke", color).attr("stroke-width", 2).attr("fill", "none");
+      xmlns = "http://www.w3.org/2000/svg";
+      this.htmlNode = d3.select(document.createElementNS(xmlns, "g")).attr("clip-path", "url(#clip)");
+      this.pathElement = this.htmlNode.append("svg:path").attr("stroke", color).attr("stroke-width", 2).attr("fill", "none");
     }
 
     Path.prototype.interpretData = function(generator) {
