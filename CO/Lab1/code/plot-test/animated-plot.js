@@ -13,6 +13,11 @@
     $(window).on("resize", function() {
       return onResize();
     });
+    $("[data-slider]").on("change", function() {
+      var pos;
+      pos = $("#mass-slider").attr("data-slider");
+      return console.log(pos);
+    });
     isRunning = false;
     process = null;
     counter = makeCounter(0.5);

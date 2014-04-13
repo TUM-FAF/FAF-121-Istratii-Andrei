@@ -10,6 +10,10 @@ $ ->
   $("#stop").click -> stopSimulation()
 
   $(window).on "resize", -> onResize()
+
+  $("[data-slider]").on "change", ->
+    pos = $("#mass-slider").attr "data-slider"
+    console.log pos
   
   isRunning = false
   process = null
