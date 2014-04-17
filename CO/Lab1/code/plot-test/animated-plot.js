@@ -4,11 +4,15 @@
 
   $(function() {
     var anim, counter, extForce, graphs, isRunning, onResize, positionPath, process, resetSimulation, simulate, spring, startSimulation, stopSimulation, velocityPath;
-    $("#start").click(function() {
-      return startSimulation();
+    $(".play_btn").click(function() {
+      startSimulation();
+      $(this).toggle();
+      return $(".pause_btn").toggle();
     });
-    $("#stop").click(function() {
-      return stopSimulation();
+    $(".pause_btn").click(function() {
+      stopSimulation();
+      $(this).toggle();
+      return $(".play_btn").toggle();
     });
     $(window).on("resize", function() {
       return onResize();
@@ -18,11 +22,12 @@
       pos = $("#mass-slider").attr("data-slider");
       return console.log(pos);
     });
+    $(".pause_btn").hide();
     isRunning = false;
     process = null;
     counter = makeCounter(0.5);
     spring = new Spring;
-    spring.reset(0, 0);
+    spring.reset(1, 0);
     graphs = [];
     graphs.push(new Graph("graph1", 0.5));
     graphs.push(new Graph("graph3", 0.5));
@@ -173,15 +178,15 @@
     function Spring(mass, elasticity, damping, externalForce) {
       this.mass = mass != null ? mass : 1.0;
       this.elasticity = elasticity != null ? elasticity : 1.0;
-      this.damping = damping != null ? damping : 0.0;
+      this.damping = damping != null ? damping : 0.3;
       this.externalForce = externalForce != null ? externalForce : (function(t) {
         return 0.0;
       });
-      this.mass = 0.1;
-      this.elasticity = 0.0;
-      this.damping = 0.2;
+      this.mass = 1;
+      this.elasticity = 1;
+      this.damping = 0;
       this.externalForce = function(t) {
-        return 0.3 * Math.cos(t * 3.0);
+        return 0;
       };
     }
 
@@ -260,12 +265,12 @@
 
   SpringAnimation = (function() {
     function SpringAnimation(graphID) {
-      var height, margin, width;
+      var cliper, height, margin, width;
       margin = {
-        top: 5,
-        right: 5,
-        bottom: 5,
-        left: 5
+        top: 0,
+        right: 0,
+        bottom: 20,
+        left: 0
       };
       width = $("#" + graphID).width() - margin.left - margin.right;
       height = width;
@@ -297,8 +302,9 @@
       ]
        */
       this.initData = [[5, 0], [5, 0.75], [4, 1], [6, 1.5], [4, 2], [6, 2.5], [4, 3], [6, 3.5], [4, 4], [5, 4.25], [5, 6]];
-      this.path = this.svg.append("g").attr("clip-path", "url(#clip)").append("path").attr("d", this.lineGenerator(this.initData)).attr("stroke", "blue").attr("stroke-width", 2).attr("fill", "none");
-      this.circle = this.svg.append("circle").attr("cx", this.xScale(5)).attr("cy", this.yScale(6)).attr("r", this.xScale(1));
+      cliper = this.svg.append("g").attr("clip-path", "url(#clip)");
+      this.path = cliper.append("path").attr("d", this.lineGenerator(this.initData)).attr("stroke", "blue").attr("stroke-width", 2).attr("fill", "none");
+      this.circle = cliper.append("circle").attr("cx", this.xScale(5)).attr("cy", this.yScale(6)).attr("r", this.xScale(1));
     }
 
     SpringAnimation.prototype.resize = function() {

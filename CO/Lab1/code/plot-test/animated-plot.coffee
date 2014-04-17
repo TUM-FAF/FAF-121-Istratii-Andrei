@@ -3,24 +3,31 @@
 $ ->
 
   # bind links
-  $("#start").click ->
+  $(".play_btn").click ->
     startSimulation()
+    $(this).toggle()
+    $(".pause_btn").toggle()
     #$(this).addClass("disabled")
 
-  $("#stop").click -> stopSimulation()
+  $(".pause_btn").click ->
+    stopSimulation()
+    $(this).toggle()
+    $(".play_btn").toggle()
 
   $(window).on "resize", -> onResize()
 
   $("[data-slider]").on "change", ->
     pos = $("#mass-slider").attr "data-slider"
     console.log pos
+
+  $(".pause_btn").hide()
   
   isRunning = false
   process = null
   counter = makeCounter(0.5)
 
   spring = new Spring
-  spring.reset(0, 0)
+  spring.reset(1, 0)
 
   graphs = []
   graphs.push new Graph "graph1", 0.5 # x
@@ -200,11 +207,11 @@ class Path
 
 
 class Spring
-  constructor: (@mass = 1.0, @elasticity = 1.0, @damping = 0.0, @externalForce = ((t) -> 0.0)) ->
-    @mass = 0.1
-    @elasticity = 0.0
-    @damping = 0.2
-    @externalForce = (t) -> 0.3*Math.cos(t*3.0)
+  constructor: (@mass = 1.0, @elasticity = 1.0, @damping = 0.3, @externalForce = ((t) -> 0.0)) ->
+    @mass = 1
+    @elasticity = 1
+    @damping = 0
+    @externalForce = (t) -> 0 #0.3*Math.cos(t*3.0)
 
   reset: (x0, v0) ->
     @t = 0.0
@@ -254,7 +261,7 @@ rk4 = (fs, h, t, ys) ->
 
 class SpringAnimation
   constructor: (graphID) ->
-    margin = {top: 5, right: 5, bottom: 5, left: 5}
+    margin = {top: 0, right: 0, bottom: 20, left: 0}
 
     width = $("##{graphID}").width() - margin.left - margin.right
     height = width
@@ -331,18 +338,16 @@ class SpringAnimation
       [5, 6]
     ]
 
+    cliper = @svg.append("g").attr("clip-path", "url(#clip)")
 
-
-    @path = @svg.append("g")
-      .attr("clip-path", "url(#clip)")
-      .append("path")
+    @path = cliper.append("path")
       .attr("d", @lineGenerator(@initData))
       .attr("stroke", "blue")
       .attr("stroke-width", 2)
       .attr("fill", "none")
 
 
-    @circle = @svg.append("circle")
+    @circle = cliper.append("circle")
       .attr("cx", @xScale(5))
       .attr("cy", @yScale(6))
       .attr("r", @xScale(1))
