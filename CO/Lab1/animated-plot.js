@@ -41,16 +41,16 @@
       delta: 0.5
     };
     spring = new Spring(startupParams);
-    graphs = [new Graph("graph1", subdivs), new Graph("graph3", subdivs)];
+    graphs = [new Graph("graph2", [-1.7, 1.7], subdivs, 4.5), new Graph("graph1", [-3, 3], subdivs, 3)];
     positionPath = new Path("blue");
     velocityPath = new Path("red");
     extForcePath = new Path("blue");
     positionPath.fill(subdivs, spring.position);
     velocityPath.fill(subdivs, spring.velocity);
     extForcePath.fill(subdivs, spring.extForce(0));
-    graphs[0].attachPath(positionPath);
-    graphs[0].attachPath(velocityPath);
-    graphs[1].attachPath(extForcePath);
+    graphs[1].attachPath(positionPath);
+    graphs[1].attachPath(velocityPath);
+    graphs[0].attachPath(extForcePath);
     anim = new SpringAnimation("spring");
     anim.update(spring.position);
     $(".pause_btn").hide();
@@ -61,7 +61,7 @@
       mass: linScale(0.1, 3.1),
       elasticity: linScale(0, 2),
       damping: linScale(0, 2),
-      amplitude: linScale(-2, 2),
+      amplitude: linScale(-1.5, 1.5),
       pulsation: linScale(0, 4),
       phase: linScale(-Math.PI, Math.PI),
       position: linScale(-2, 2),
@@ -133,8 +133,8 @@
   });
 
   Graph = (function() {
-    function Graph(graphID, subdivisions) {
-      var height, margin, w, width, xS, yS;
+    function Graph(graphID, range, subdivisions, aspect) {
+      var height, margin, w, width;
       this.graphID = graphID;
       this.paths = [];
       margin = {
@@ -143,22 +143,24 @@
         bottom: 10,
         left: 50
       };
-      this.aspectRatio = 4;
+      this.aspectRatio = aspect;
       w = $("#" + this.graphID).width();
+      console.log(w);
       width = w - margin.left - margin.right;
       height = w / this.aspectRatio - margin.top - margin.bottom;
       this.svg = d3.select("#" + this.graphID).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " + (height + margin.top + margin.bottom)).attr("preserveAspectRatio", "xMinYMin").append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
       this.svg.append("defs").append("clipPath").attr("id", "clip").append("rect").attr("width", width).attr("height", height);
-      this.svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("stroke", "black").attr("stroke-width", 0.5);
       this.xScale = d3.scale.linear().domain([0, subdivisions - 1]).range([0, width]);
-      this.yScale = d3.scale.linear().domain([-3, 3]).range([height, 0]);
-      xS = this.xScale;
-      yS = this.yScale;
-      this.lineGenerator = d3.svg.line().x(function(d, i) {
-        return xS(i);
-      }).y(function(d, i) {
-        return yS(d);
-      }).interpolate("basis");
+      this.yScale = d3.scale.linear().domain(range).range([height, 0]);
+      this.lineGenerator = d3.svg.line().x((function(_this) {
+        return function(d, i) {
+          return _this.xScale(i);
+        };
+      })(this)).y((function(_this) {
+        return function(d, i) {
+          return _this.yScale(d);
+        };
+      })(this)).interpolate("basis");
       this.svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + this.yScale(0) + ")").call(d3.svg.axis().scale(this.xScale).orient("bottom").ticks(0));
       this.svg.append("g").attr("class", "y axis").call(d3.svg.axis().scale(this.yScale).orient("left"));
     }
@@ -262,7 +264,6 @@
       })(this);
       _ref = rk4([f1, f2], this.delta, this.t, [this.position, this.velocity]), this.position = _ref[0], this.velocity = _ref[1];
       f = this.extForce(this.t);
-      console.log("" + (this.t.toFixed(1)) + " -- " + (this.position.toFixed(3)) + " -- " + f);
       this.t += this.delta;
       return [this.position, this.velocity, f];
     };

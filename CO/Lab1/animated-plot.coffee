@@ -41,9 +41,8 @@ $ ->
   spring = new Spring startupParams  
 
   graphs = [
-    new Graph "graph1", subdivs # x
-    #graphs.push new Graph "graph2", subdivs # v
-    new Graph "graph3", subdivs # F(t)
+    new Graph "graph2", [-1.7, 1.7], subdivs, 4.5 # F(t)
+    new Graph "graph1", [-3, 3], subdivs, 3 # x, v    
   ]
 
   positionPath = new Path "blue"  
@@ -54,9 +53,9 @@ $ ->
   velocityPath.fill(subdivs, spring.velocity)
   extForcePath.fill(subdivs, spring.extForce(0))
 
-  graphs[0].attachPath positionPath
-  graphs[0].attachPath velocityPath
-  graphs[1].attachPath extForcePath
+  graphs[1].attachPath positionPath
+  graphs[1].attachPath velocityPath
+  graphs[0].attachPath extForcePath
 
   anim = new SpringAnimation "spring"
   anim.update(spring.position)
@@ -72,7 +71,7 @@ $ ->
     mass:       linScale(0.1, 3.1)
     elasticity: linScale(0, 2)
     damping:    linScale(0, 2)
-    amplitude:  linScale(-2, 2)
+    amplitude:  linScale(-1.5, 1.5)
     pulsation:  linScale(0, 4)
     phase:      linScale(-Math.PI, Math.PI)
     position:   linScale(-2, 2)
@@ -135,7 +134,7 @@ $ ->
 
 
 class Graph
-  constructor: (graphID, subdivisions) ->
+  constructor: (graphID, range, subdivisions, aspect) ->
 
     @graphID = graphID
 
@@ -143,9 +142,10 @@ class Graph
 
     margin = {top: 10, right: 20, bottom: 10, left: 50}
 
-    @aspectRatio = 4
+    @aspectRatio = aspect
 
     w = $("##{@graphID}").width()
+    console.log  w
 
     width = w - margin.left - margin.right
     height = w/@aspectRatio - margin.top - margin.bottom
@@ -166,28 +166,24 @@ class Graph
       .attr("height", height)
 
     # border
-    @svg.append("rect")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("fill", "none")
-      .attr("stroke", "black")
-      .attr("stroke-width", 0.5)
+    #@svg.append("rect")
+    #  .attr("width", width)
+    #  .attr("height", height)
+    #  .attr("fill", "none")
+    #  .attr("stroke", "black")
+    #  .attr("stroke-width", 0.5)
 
     @xScale = d3.scale.linear()
       .domain([0, subdivisions-1])
       .range([0, width])
 
     @yScale = d3.scale.linear()
-      .domain([-3,3])             # TODO: support changes
+      .domain(range)
       .range([height, 0])
 
-    # for closures in line generators
-    xS = @xScale
-    yS = @yScale
-
     @lineGenerator = d3.svg.line()
-      .x( (d,i) -> xS(i) )
-      .y( (d,i) -> yS(d) )
+      .x( (d,i) => @xScale(i) )
+      .y( (d,i) => @yScale(d) )
       .interpolate("basis")
 
     # x axis
@@ -265,7 +261,6 @@ class Spring
 
     [@position, @velocity] = rk4([f1, f2], @delta, @t, [@position, @velocity])
     f = @extForce(@t)
-    console.log "#{@t.toFixed(1)} -- #{@position.toFixed(3)} -- #{f}"
     @t += @delta
     [@position, @velocity, f]
 

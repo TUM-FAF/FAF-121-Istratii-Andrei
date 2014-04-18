@@ -6,3 +6,7 @@
   stroke: #000;
   shape-rendering: crispEdges;
 }
+
+.graph {
+	width: 100%;
+}
