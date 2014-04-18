@@ -2,7 +2,7 @@
 
 $ ->
 
-  # bind links and events
+  # Bind links and events to handlers
   $(".play_btn").click ->
     playSimulation()
     $(this).toggle()
@@ -17,22 +17,15 @@ $ ->
 
   $(window).on "resize", -> onResize()
 
-  $(".pause_btn").hide()
+  $("[data-slider]").on "change", ->
+    param_name = $(this).attr("id").match(/(.+?)-slider/)[1]
+    data = sliderScales[param_name]($(this).attr("data-slider"))
+    $("##{param_name}-feedback").html data.toFixed(2)
 
-
-  linScale = (from, to) ->
-    d3.scale.linear().domain([0, 100]).range([from, to])
-
-  sliderScales =
-    mass:       linScale(0.1, 3.1)
-    elasticity: linScale(0, 2)
-    damping:    linScale(0, 1)
-    amplitude:  linScale(-2, 2)
-    pulsation:  linScale(0, 3)
-    phase:      linScale(-Math.PI, Math.PI)
-    position:   linScale(-2, 2)
-    velocity:   linScale(0, 2)
-    delta:      linScale(0.2, 2)
+  # Initialize data
+  isRunning = false
+  process = null
+  subdivs = 100
 
   startupParams =
     mass:       1
@@ -43,30 +36,22 @@ $ ->
     phase:      0
     position:   1
     velocity:   0
-    delta:      0.5
+    delta:      0.5  
 
+  spring = new Spring startupParams  
 
-  $.each startupParams, (key, value) ->
-    $("##{key}-slider").foundation "slider", "set_value", sliderScales[key].invert(value)
+  graphs = [
+    new Graph "graph1", subdivs # x
+    #graphs.push new Graph "graph2", subdivs # v
+    new Graph "graph3", subdivs # F(t)
+  ]
 
-
-
-  
-  isRunning = false
-  process = null
-
-  spring = new Spring startupParams
-  subdivs = 100
-  graphs = []
-  graphs.push new Graph "graph1", subdivs # x
-  #@graphs.push new Graph "graph2", 0.5 # v
-  graphs.push new Graph "graph3", subdivs # F(t)
-
-  positionPath = new Path "blue"
-  positionPath.fill(subdivs, spring.position)
-  velocityPath = new Path "red"
-  velocityPath.fill(subdivs, spring.velocity)
+  positionPath = new Path "blue"  
+  velocityPath = new Path "red"  
   extForcePath = new Path "blue"
+
+  positionPath.fill(subdivs, spring.position)
+  velocityPath.fill(subdivs, spring.velocity)
   extForcePath.fill(subdivs, spring.extForce(0))
 
   graphs[0].attachPath positionPath
@@ -74,7 +59,31 @@ $ ->
   graphs[1].attachPath extForcePath
 
   anim = new SpringAnimation "spring"
+  anim.update(spring.position)
 
+
+  # Configure sliders and buttons
+  $(".pause_btn").hide()
+
+  linScale = (from, to) ->
+    d3.scale.linear().domain([0, 100]).range([from, to])
+
+  sliderScales =
+    mass:       linScale(0.1, 3.1)
+    elasticity: linScale(0, 2)
+    damping:    linScale(0, 2)
+    amplitude:  linScale(-2, 2)
+    pulsation:  linScale(0, 4)
+    phase:      linScale(-Math.PI, Math.PI)
+    position:   linScale(-2, 2)
+    velocity:   linScale(0, 2)
+    delta:      linScale(0.2, 2)  
+
+  $.each startupParams, (key, value) ->
+    $("##{key}-slider").foundation "slider", "set_value", sliderScales[key].invert(value)
+
+
+  # Handlers
   playSimulation = () ->
     console.log "Simulation started"
     process = setInterval((() -> simulate()), 100) unless isRunning
@@ -97,14 +106,10 @@ $ ->
     positionPath.fill(subdivs, spring.position)
     velocityPath.fill(subdivs, spring.velocity)
     extForcePath.fill(subdivs, spring.extForce(0))
+
     for g in graphs
       g.updateState()
-
-  onResize = () ->
-    anim.resize()
-    for graph in graphs
-      graph.resize()
-
+    anim.update(spring.position)
 
   simulate = () ->
     [x, v, f] = spring.next()
@@ -123,6 +128,10 @@ $ ->
 
     anim.update(x)
 
+  onResize = () ->
+    anim.resize()
+    for graph in graphs
+      graph.resize()
 
 
 class Graph
@@ -144,11 +153,10 @@ class Graph
     @svg = d3.select("##{@graphID}").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
-      .attr('viewBox', '0 0 '+ (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
-      .attr('preserveAspectRatio', 'xMinYMin')
+      .attr("viewBox", "0 0 "+ (width + margin.left + margin.right) + " " + (height + margin.top + margin.bottom))
+      .attr("preserveAspectRatio", "xMinYMin")
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-
 
     # clipping rect
     @svg.append("defs").append("clipPath")
@@ -156,7 +164,6 @@ class Graph
       .append("rect")
       .attr("width", width)
       .attr("height", height)
-
 
     # border
     @svg.append("rect")
@@ -170,9 +177,8 @@ class Graph
       .domain([0, subdivisions-1])
       .range([0, width])
 
-
     @yScale = d3.scale.linear()
-      .domain([-2,2])             # TODO: support changes
+      .domain([-3,3])             # TODO: support changes
       .range([height, 0])
 
     # for closures in line generators
@@ -184,8 +190,6 @@ class Graph
       .y( (d,i) -> yS(d) )
       .interpolate("basis")
 
-
-
     # x axis
     @svg.append("g")
       .attr("class", "x axis")
@@ -196,7 +200,6 @@ class Graph
     @svg.append("g")
       .attr("class", "y axis")
       .call(d3.svg.axis().scale(@yScale).orient("left"))
-
 
   attachPath: (p) ->
     @paths.push(p)
@@ -219,7 +222,6 @@ class Graph
     d3.select("##{@graphID} svg")
       .attr("width", width)
       .attr("height", width/@aspectRatio)
-
 
 
 
@@ -263,23 +265,14 @@ class Spring
 
     [@position, @velocity] = rk4([f1, f2], @delta, @t, [@position, @velocity])
     f = @extForce(@t)
+    console.log "#{@t.toFixed(1)} -- #{@position.toFixed(3)} -- #{f}"
     @t += @delta
     [@position, @velocity, f]
 
 
-makeCounter = (delta) ->
-  t = 0
-  () ->
-    r = t
-    t += delta
-    r
-
-
 rk4 = (fs, h, t, ys) ->
   vectorSum = (v1, v2) ->
-    res = []
-    res.push(v1[i] + v2[i]) for v, i in v1 # REFACTOR !
-    res
+    (v1[i] + v2[i]) for v, i in v1
   scalarMul = (v, a) -> v.map((x) -> x * a)
 
   h2 = 0.5 * h
@@ -306,11 +299,10 @@ class SpringAnimation
     @svg = d3.select("##{graphID}").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
-      .attr('viewBox', '0 0 '+ (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
-      .attr('preserveAspectRatio', 'xMinYMin')
+      .attr("viewBox", "0 0 "+ (width + margin.left + margin.right) + " " + (height + margin.top + margin.bottom))
+      .attr("preserveAspectRatio", "xMinYMin")
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-
 
     # clipping rect
     @svg.append("defs").append("clipPath")
@@ -318,7 +310,6 @@ class SpringAnimation
       .append("rect")
       .attr("width", width)
       .attr("height", height)
-
 
     # border
     @svg.append("rect")
@@ -337,12 +328,9 @@ class SpringAnimation
       .domain([0, 10])             # TODO: support changes
       .range([0, height])
 
-
-
     @lineGenerator = d3.svg.line()
       .x( (d) -> @xScale(d[0]) )
       .y( (d) -> @yScale(d[1]) )
-
 
     @initData = [
       [5, 0]
@@ -366,31 +354,24 @@ class SpringAnimation
       .attr("stroke-width", 2)
       .attr("fill", "none")
 
-
     @circle = cliper.append("circle")
       .attr("cx", @xScale(5))
       .attr("cy", @yScale(6))
       .attr("r", @xScale(1))
 
-
   resize: () ->
     size = $("##{@graphID}").width()
-    console.log size
     d3.select("##{@graphID} svg")
       .attr("width", size)
       .attr("height", size)
 
-
-  update: (delta) ->
+  update: (pos) ->
     @circle.transition()
         .duration(50)
         .ease("linear")
-        .attr("transform", "translate(0, " + (@yScale(delta*2)) + ")")
+        .attr("transform", "translate(0, #{(@yScale(pos*2))})")
 
-    @data = @initData.map( (p) ->
-      [x, y] = p
-      [x, (y + 2*delta*(y/6.0))]
-    )
+    @data = @initData.map (p) -> [p[0], (p[1] + 2 * pos * (p[1] / 6.0))]
 
     @path.transition()
       .duration(50)
