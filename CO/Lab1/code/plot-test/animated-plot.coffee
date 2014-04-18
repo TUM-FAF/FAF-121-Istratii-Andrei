@@ -13,73 +13,65 @@ $ ->
     $(this).toggle()
     $(".play_btn").toggle()
 
-  $(".reset_btn").click ->
-    params = {}
-    $("[data-slider]").each (i, element) ->
-      slider = $(element)
-      param_name = slider.attr("id").match(/(.+?)-slider/)
-      params[param_name] = slider.attr("data-slider")
-
-    spring.update params
+  $(".reset_btn").click -> resetSimulation()
 
   $(window).on "resize", -> onResize()
 
   $(".pause_btn").hide()
 
 
-  slider_scales = {}
-
   linScale = (from, to) ->
     d3.scale.linear().domain([0, 100]).range([from, to])
 
-  slider_scales["mass"] = linScale(0, 3)
-  slider_scales["elasticity"] = linScale(0, 2)
-  slider_scales["damping"] = linScale(0, 1)
-  slider_scales["amplitude"] = linScale(-2, 2)
-  slider_scales["pulsation"] = linScale(0, 3)
-  slider_scales["phase"] = linScale(-Math.PI, Math.PI)
-  slider_scales["position"] = linScale(-3, 3)
-  slider_scales["velocity"] = linScale(0, 2)
-  slider_scales["delta"] = linScale(0.2, 2)
+  sliderScales =
+    mass:       linScale(0.1, 3.1)
+    elasticity: linScale(0, 2)
+    damping:    linScale(0, 1)
+    amplitude:  linScale(-2, 2)
+    pulsation:  linScale(0, 3)
+    phase:      linScale(-Math.PI, Math.PI)
+    position:   linScale(-2, 2)
+    velocity:   linScale(0, 2)
+    delta:      linScale(0.2, 2)
 
-  startup_params = {
-    "mass"        : 1,
-    "elasticity"  : 1,
-    "damping"     : 0.1,
-    "amplitude"   : 0,
-    "pulsation"   : 0,
-    "phase"       : 0,
-    "position"    : 2,
-    "velocity"    : 0,
-    "delta"       : 0.5
-  }
+  startupParams =
+    mass:       1
+    elasticity: 1
+    damping:    0.1
+    amplitude:  0
+    pulsation:  0
+    phase:      0
+    position:   1
+    velocity:   0
+    delta:      0.5
 
-  $.each startup_params, (key, value) ->
-    $("##{key}-slider").foundation "slider", "set_value", slider_scales[key].invert(value)
+
+  $.each startupParams, (key, value) ->
+    $("##{key}-slider").foundation "slider", "set_value", sliderScales[key].invert(value)
 
 
 
   
   isRunning = false
   process = null
-  counter = makeCounter(0.5)
 
-  spring = new Spring
-  spring.reset(startup_params)
-
+  spring = new Spring startupParams
+  subdivs = 100
   graphs = []
-  graphs.push new Graph "graph1", 0.5 # x
-  #@graphs.push new Graph "graph2", 800, 200, 0.5 # v
-  graphs.push new Graph "graph3", 0.5 # F(t)
+  graphs.push new Graph "graph1", subdivs # x
+  #@graphs.push new Graph "graph2", 0.5 # v
+  graphs.push new Graph "graph3", subdivs # F(t)
 
-  
   positionPath = new Path "blue"
+  positionPath.fill(subdivs, spring.position)
   velocityPath = new Path "red"
-  extForce = new Path "blue"
+  velocityPath.fill(subdivs, spring.velocity)
+  extForcePath = new Path "blue"
+  extForcePath.fill(subdivs, spring.extForce(0))
 
   graphs[0].attachPath positionPath
   graphs[0].attachPath velocityPath
-  graphs[1].attachPath extForce
+  graphs[1].attachPath extForcePath
 
   anim = new SpringAnimation "spring"
 
@@ -94,6 +86,19 @@ $ ->
     console.log "Simulation ended"
 
   resetSimulation = () ->
+    params = {}
+    $("[data-slider]").each (i, element) ->
+      slider = $(element)
+      param_name = slider.attr("id").match(/(.+?)-slider/)[1]
+      params[param_name] = sliderScales[param_name](slider.attr("data-slider"))
+
+    spring.reset params
+
+    positionPath.fill(subdivs, spring.position)
+    velocityPath.fill(subdivs, spring.velocity)
+    extForcePath.fill(subdivs, spring.extForce(0))
+    for g in graphs
+      g.updateState()
 
   onResize = () ->
     anim.resize()
@@ -102,13 +107,11 @@ $ ->
 
 
   simulate = () ->
-    t = counter()
-
-    [x, v] = spring.next(0.5)
+    [x, v, f] = spring.next()
 
     positionPath.data.push(x)
     velocityPath.data.push(v)
-    extForce.data.push(spring.externalForce(t-0.5))
+    extForcePath.data.push(f)
 
     for g in graphs
       g.updateState()
@@ -116,20 +119,19 @@ $ ->
     
     positionPath.data.shift()
     velocityPath.data.shift()
-    extForce.data.shift()
+    extForcePath.data.shift()
 
     anim.update(x)
 
 
 
 class Graph
-  constructor: (graphID, delta) ->
+  constructor: (graphID, subdivisions) ->
 
     @graphID = graphID
 
     @paths = []
 
-    @n = 100
     margin = {top: 10, right: 20, bottom: 10, left: 50}
 
     @aspectRatio = 4
@@ -165,7 +167,7 @@ class Graph
       .attr("stroke-width", 0.5)
 
     @xScale = d3.scale.linear()
-      .domain([0, @n-1])
+      .domain([0, subdivisions-1])
       .range([0, width])
 
 
@@ -197,12 +199,8 @@ class Graph
 
 
   attachPath: (p) ->
-    while p.data.length < @n
-      p.data.push(0)
-
     @paths.push(p)
     @svg.append(() -> p.htmlNode.node())
-
 
   updateState: () ->
     for p in @paths
@@ -218,7 +216,6 @@ class Graph
 
   resize: () ->
     width = $("##{@graphID}").width()
-    console.log width
     d3.select("##{@graphID} svg")
       .attr("width", width)
       .attr("height", width/@aspectRatio)
@@ -239,38 +236,35 @@ class Path
       .attr("stroke-width", 2)
       .attr("fill", "none")
 
+  fill: (n, d) ->
+    @data.length = 0
+    while @data.length < n
+      @data.push(d)
+
   interpretData: (generator) ->
     @pathElement.attr("d", generator(@data))
 
 
 
 class Spring
-  constructor: (@mass = 1.0, @elasticity = 1.0, @damping = 0.3, @externalForce = ((t) -> 0.0)) ->
-    @mass = 1
-    @elasticity = 1
-    @damping = 0
-    @amplitude = 0
-    @pulsation = 0
-    @phase = 0
-    @externalForce = (t) -> 0#amp*Math.sin(t*omega + phi)
+  constructor: (params) ->
+    @reset(params)
 
   reset: (params) ->
     @t = 0.0
-    @x = x0
-    @v = v0
+    $.each params, (k, v) => @[k] = v
 
+    @extForce = (t) => @amplitude * Math.sin(@pulsation * t + @phase)
 
-  next: (delta) ->
-    m = @mass
-    k = @elasticity
-    c = @damping
-    f = @externalForce
-    f1 = (t, ys) -> ys[1]
-    f2 = (t, ys) -> (f(t) - c*ys[1] - k*ys[0])/m
+  next: ->
+    f1 = (t, ys) => ys[1]
+    f2 = (t, ys) =>
+      (@extForce(t) - @damping * ys[1] - @elasticity * ys[0]) / @mass
 
-    [@x, @v] = rk4([f1, f2], delta, @t, [@x, @v])
-    @t += delta
-    [@x, @v]
+    [@position, @velocity] = rk4([f1, f2], @delta, @t, [@position, @velocity])
+    f = @extForce(@t)
+    @t += @delta
+    [@position, @velocity, f]
 
 
 makeCounter = (delta) ->
@@ -284,9 +278,9 @@ makeCounter = (delta) ->
 rk4 = (fs, h, t, ys) ->
   vectorSum = (v1, v2) ->
     res = []
-    res.push(v1[i] + v2[i]) for v, i in v1
+    res.push(v1[i] + v2[i]) for v, i in v1 # REFACTOR !
     res
-  scalarMul = (v, a) -> v.map((x)->x*a)
+  scalarMul = (v, a) -> v.map((x) -> x * a)
 
   h2 = 0.5 * h
   k1 = fs.map( (f) -> f(t, ys) )
@@ -296,7 +290,7 @@ rk4 = (fs, h, t, ys) ->
   u = scalarMul(k2, 2)
   v = scalarMul(k3, 2)
   w = vectorSum(vectorSum(vectorSum(k1, u), v), k4)  # inefficient but should work
-  vectorSum(ys, scalarMul(w, (1/6.0)*h))
+  vectorSum(ys, scalarMul(w, (1 / 6.0) * h))
 
 
 
@@ -349,33 +343,18 @@ class SpringAnimation
       .x( (d) -> @xScale(d[0]) )
       .y( (d) -> @yScale(d[1]) )
 
-    ###
-    @data = [
-      {x: 5, y: 0},
-      {x: 5, y: 0.75},
-      {x: 4, y: 1},
-      {x: 6, y: 1.5},
-      {x: 4, y: 2},
-      {x: 6, y: 2.5},
-      {x: 4, y: 3},
-      {x: 6, y: 3.5},
-      {x: 4, y: 4},
-      {x: 5, y: 4.25}
-      {x: 5, y: 6},
-    ]
-    ###
 
     @initData = [
-      [5, 0],
-      [5, 0.75],
-      [4, 1],
-      [6, 1.5],
-      [4, 2],
-      [6, 2.5],
-      [4, 3],
-      [6, 3.5],
-      [4, 4],
-      [5, 4.25],
+      [5, 0]
+      [5, 0.75]
+      [4, 1]
+      [6, 1.5]
+      [4, 2]
+      [6, 2.5]
+      [4, 3]
+      [6, 3.5]
+      [4, 4]
+      [5, 4.25]
       [5, 6]
     ]
 
