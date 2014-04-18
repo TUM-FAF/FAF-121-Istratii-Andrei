@@ -3,31 +3,64 @@
   var Graph, Path, Spring, SpringAnimation, makeCounter, rk4;
 
   $(function() {
-    var anim, counter, extForce, graphs, isRunning, onResize, positionPath, process, resetSimulation, simulate, spring, startSimulation, stopSimulation, velocityPath;
+    var anim, counter, extForce, graphs, isRunning, linScale, onResize, pauseSimulation, playSimulation, positionPath, process, resetSimulation, simulate, slider_scales, spring, startup_params, velocityPath;
     $(".play_btn").click(function() {
-      startSimulation();
+      playSimulation();
       $(this).toggle();
       return $(".pause_btn").toggle();
     });
     $(".pause_btn").click(function() {
-      stopSimulation();
+      pauseSimulation();
       $(this).toggle();
       return $(".play_btn").toggle();
+    });
+    $(".reset_btn").click(function() {
+      var params;
+      params = {};
+      $("[data-slider]").each(function(i, element) {
+        var param_name, slider;
+        slider = $(element);
+        param_name = slider.attr("id").match(/(.+?)-slider/);
+        return params[param_name] = slider.attr("data-slider");
+      });
+      return spring.update(params);
     });
     $(window).on("resize", function() {
       return onResize();
     });
-    $("[data-slider]").on("change", function() {
-      var pos;
-      pos = $("#mass-slider").attr("data-slider");
-      return console.log(pos);
-    });
     $(".pause_btn").hide();
+    slider_scales = {};
+    linScale = function(from, to) {
+      return d3.scale.linear().domain([0, 100]).range([from, to]);
+    };
+    slider_scales["mass"] = linScale(0, 3);
+    slider_scales["elasticity"] = linScale(0, 2);
+    slider_scales["damping"] = linScale(0, 1);
+    slider_scales["amplitude"] = linScale(-2, 2);
+    slider_scales["pulsation"] = linScale(0, 3);
+    slider_scales["phase"] = linScale(-Math.PI, Math.PI);
+    slider_scales["position"] = linScale(-3, 3);
+    slider_scales["velocity"] = linScale(0, 2);
+    slider_scales["delta"] = linScale(0.2, 2);
+    startup_params = {
+      "mass": 1,
+      "elasticity": 1,
+      "damping": 0.1,
+      "amplitude": 0,
+      "pulsation": 0,
+      "phase": 0,
+      "position": 2,
+      "velocity": 0,
+      "delta": 0.5
+    };
+    $.each(startup_params, function(key, value) {
+      return $("#" + key + "-slider").foundation("slider", "set_value", slider_scales[key].invert(value));
+    });
     isRunning = false;
     process = null;
     counter = makeCounter(0.5);
     spring = new Spring;
-    spring.reset(1, 0);
+    spring.reset(startup_params);
     graphs = [];
     graphs.push(new Graph("graph1", 0.5));
     graphs.push(new Graph("graph3", 0.5));
@@ -38,7 +71,7 @@
     graphs[0].attachPath(velocityPath);
     graphs[1].attachPath(extForce);
     anim = new SpringAnimation("spring");
-    startSimulation = function() {
+    playSimulation = function() {
       console.log("Simulation started");
       if (!isRunning) {
         process = setInterval((function() {
@@ -47,7 +80,7 @@
       }
       return isRunning = true;
     };
-    stopSimulation = function() {
+    pauseSimulation = function() {
       clearInterval(process);
       isRunning = false;
       return console.log("Simulation ended");
@@ -185,12 +218,15 @@
       this.mass = 1;
       this.elasticity = 1;
       this.damping = 0;
+      this.amplitude = 0;
+      this.pulsation = 0;
+      this.phase = 0;
       this.externalForce = function(t) {
         return 0;
       };
     }
 
-    Spring.prototype.reset = function(x0, v0) {
+    Spring.prototype.reset = function(params) {
       this.t = 0.0;
       this.x = x0;
       return this.v = v0;

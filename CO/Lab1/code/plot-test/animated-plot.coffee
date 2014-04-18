@@ -2,32 +2,70 @@
 
 $ ->
 
-  # bind links
+  # bind links and events
   $(".play_btn").click ->
-    startSimulation()
+    playSimulation()
     $(this).toggle()
     $(".pause_btn").toggle()
-    #$(this).addClass("disabled")
 
   $(".pause_btn").click ->
-    stopSimulation()
+    pauseSimulation()
     $(this).toggle()
     $(".play_btn").toggle()
 
+  $(".reset_btn").click ->
+    params = {}
+    $("[data-slider]").each (i, element) ->
+      slider = $(element)
+      param_name = slider.attr("id").match(/(.+?)-slider/)
+      params[param_name] = slider.attr("data-slider")
+
+    spring.update params
+
   $(window).on "resize", -> onResize()
 
-  $("[data-slider]").on "change", ->
-    pos = $("#mass-slider").attr "data-slider"
-    console.log pos
-
   $(".pause_btn").hide()
+
+
+  slider_scales = {}
+
+  linScale = (from, to) ->
+    d3.scale.linear().domain([0, 100]).range([from, to])
+
+  slider_scales["mass"] = linScale(0, 3)
+  slider_scales["elasticity"] = linScale(0, 2)
+  slider_scales["damping"] = linScale(0, 1)
+  slider_scales["amplitude"] = linScale(-2, 2)
+  slider_scales["pulsation"] = linScale(0, 3)
+  slider_scales["phase"] = linScale(-Math.PI, Math.PI)
+  slider_scales["position"] = linScale(-3, 3)
+  slider_scales["velocity"] = linScale(0, 2)
+  slider_scales["delta"] = linScale(0.2, 2)
+
+  startup_params = {
+    "mass"        : 1,
+    "elasticity"  : 1,
+    "damping"     : 0.1,
+    "amplitude"   : 0,
+    "pulsation"   : 0,
+    "phase"       : 0,
+    "position"    : 2,
+    "velocity"    : 0,
+    "delta"       : 0.5
+  }
+
+  $.each startup_params, (key, value) ->
+    $("##{key}-slider").foundation "slider", "set_value", slider_scales[key].invert(value)
+
+
+
   
   isRunning = false
   process = null
   counter = makeCounter(0.5)
 
   spring = new Spring
-  spring.reset(1, 0)
+  spring.reset(startup_params)
 
   graphs = []
   graphs.push new Graph "graph1", 0.5 # x
@@ -45,12 +83,12 @@ $ ->
 
   anim = new SpringAnimation "spring"
 
-  startSimulation = () ->
+  playSimulation = () ->
     console.log "Simulation started"
     process = setInterval((() -> simulate()), 100) unless isRunning
     isRunning = true
 
-  stopSimulation = () ->
+  pauseSimulation = () ->
     clearInterval process
     isRunning = false
     console.log "Simulation ended"
@@ -211,9 +249,12 @@ class Spring
     @mass = 1
     @elasticity = 1
     @damping = 0
-    @externalForce = (t) -> 0 #0.3*Math.cos(t*3.0)
+    @amplitude = 0
+    @pulsation = 0
+    @phase = 0
+    @externalForce = (t) -> 0#amp*Math.sin(t*omega + phi)
 
-  reset: (x0, v0) ->
+  reset: (params) ->
     @t = 0.0
     @x = x0
     @v = v0
