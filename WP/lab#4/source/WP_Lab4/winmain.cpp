@@ -5,21 +5,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 
 
-#include <windows.h>
-#include <windowsx.h>
-#include <commctrl.h>
-#include <map>
-#include <string>
-#include <iostream>
-
-
-
-#include "window.h"
-#include "frame_window.h"
-#include "viewport_window.h"
-#include "tools.h"
-
-#include "resource.h"
+#include "shared_headers.h"
 
 using namespace std;
 
@@ -33,52 +19,21 @@ LPCWSTR g_viewportWinClassName = L"viewport";
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
 {
-    INITCOMMONCONTROLSEX ctls;
-    ctls.dwSize = sizeof(INITCOMMONCONTROLSEX);
-    ctls.dwICC = ICC_BAR_CLASSES;
+    Game* game = NULL;
 
-    InitCommonControlsEx(&ctls);
-
-    CreateDeveloperConsole();
-
-
-    RECT rct;
-
-    rct.left = 0;
-    rct.top = 0;
-    rct.right = 800;
-    rct.bottom = 600;
-
-    AdjustWindowRectEx(&rct, WS_OVERLAPPEDWINDOW | WS_HSCROLL | WS_VSCROLL, TRUE, WS_EX_OVERLAPPEDWINDOW);
-
-    FrameWindow frameWindow;
-
-    bool res = frameWindow.CreateEx(WS_EX_OVERLAPPEDWINDOW,
-                                    g_mainWinClassName,
-                                    L"WP Lab 4",
-                                    WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
-                                    CW_USEDEFAULT, 0,
-                                    rct.right - rct.left, rct.bottom - rct.top,
-                                    NULL, NULL,
-                                    hInstance);
-    
-
-    if (!res)
+    try
     {
-        MessageBox(NULL, L"Could not create the window!", L"Error!", MB_OK|MB_ICONERROR);
-        return 0;
+        game = new Game();
+
+        game->Init();
+        game->SceneInit();
+        game->Run();
+    }
+    catch (const Error& e)
+    {
+        cout << e.What();
     }
 
-    frameWindow.Show(nCmdShow);
-    frameWindow.Update();
-
-    MSG msg;
-
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-    return msg.wParam;
+    if (game) { delete game; }
+    return 0;
 }

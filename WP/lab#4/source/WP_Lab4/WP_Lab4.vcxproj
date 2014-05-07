@@ -81,7 +81,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="backbuffer.cpp" />
-    <ClCompile Include="frame_window.cpp" />
+    <ClCompile Include="game.cpp" />
+    <ClCompile Include="mouse.cpp" />
+    <ClCompile Include="timer.cpp" />
     <ClCompile Include="tools.cpp" />
     <ClCompile Include="window.cpp" />
     <ClCompile Include="winmain.cpp" />
@@ -89,9 +91,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="backbuffer.h" />
-    <ClInclude Include="frame_window.h" />
+    <ClInclude Include="error.h" />
+    <ClInclude Include="game.h" />
+    <ClInclude Include="mouse.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="shared_headers.h" />
+    <ClInclude Include="timer.h" />
     <ClInclude Include="tools.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="viewport_window.h" />

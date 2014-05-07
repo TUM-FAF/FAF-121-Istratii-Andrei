@@ -21,32 +21,34 @@ void ViewportWindow::OnCreate()
     RECT rct;
     GetClientRect(hWnd, &rct);
 
+    width = rct.right - rct.left;
+    height = rct.bottom - rct.top;
+
     HDC hDC = GetDC(hWnd);
 
-    backbuffer.Init(hDC, rct.right - rct.left, rct.bottom - rct.top);
+    backbuffer.Init(hDC, width, height);
 
     ReleaseDC(hWnd, hDC);
-
-    repaintTimer = SetTimer(hWnd, ID_REPAINT_TIMER, 16, NULL);
 }
 
 
 void ViewportWindow::OnPaint(HDC hDC)
 {
-    backbuffer.FillWithColor(RGB(100, 100, 100));
     backbuffer.Present(hDC);
 }
 
 
-void ViewportWindow::OnSize(int width, int height, WPARAM wParam)
+void ViewportWindow::OnSize(int width_, int height_, WPARAM wParam)
 {
+    width = width_;
+    height = height_;
     backbuffer.Resize(width, height);
 }
 
 
 void ViewportWindow::OnDestroy()
 {
-    KillTimer(hWnd, repaintTimer);
+    PostQuitMessage(0);
 }
 
 
@@ -82,28 +84,9 @@ LRESULT ViewportWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM 
         //mouse.RightButtonUp();
         break;
 
-
-
-    case WM_TIMER:
-        InvalidateRect(hWnd, NULL, FALSE);
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
         break;
-
-
-
-    case WM_MOUSEMOVE:
-        {
-            SetFocus(hWnd);
-            POINT m;
-            m.x = GET_X_LPARAM(lParam);
-            m.y = GET_Y_LPARAM(lParam);
-
-            //mouse.Update(m.x, m.y);
-            //mouse.Move();
-
-            Ellipse(backbuffer.GetDC(), m.x, m.y, m.x+10, m.y+10);
-        }
-        break;
-
 
     default:
         return Window::WndProc(hWnd_, message, wParam, lParam);
