@@ -20,7 +20,6 @@
 
 #include "game.h"
 #include "window.h"
-#include "frame_window.h"
 #include "viewport_window.h"
 #include "backbuffer.h"
 #include "timer.h"
