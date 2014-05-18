@@ -81,7 +81,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="backbuffer.cpp" />
+    <ClCompile Include="circle.cpp" />
+    <ClCompile Include="collision.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="geometry.cpp" />
     <ClCompile Include="mouse.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="tools.cpp" />
@@ -91,8 +94,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="backbuffer.h" />
+    <ClInclude Include="circle.h" />
+    <ClInclude Include="collision.h" />
     <ClInclude Include="error.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="geometry.h" />
     <ClInclude Include="mouse.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="shared_headers.h" />

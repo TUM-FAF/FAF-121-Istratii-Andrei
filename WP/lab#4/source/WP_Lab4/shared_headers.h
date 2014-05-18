@@ -26,6 +26,8 @@
 #include "tools.h"
 #include "mouse.h"
 #include "error.h"
+#include "geometry.h"
+#include "circle.h"
 
 #include "resource.h"
 

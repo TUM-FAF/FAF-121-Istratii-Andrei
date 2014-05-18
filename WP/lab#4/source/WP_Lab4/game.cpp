@@ -3,6 +3,18 @@
 #include "shared_headers.h"
 
 
+Game::Game()
+{
+    ball = NULL;
+}
+
+
+Game::~Game()
+{
+    if (ball) { delete ball; }
+}
+
+
 void Game::Init()
 {
     INITCOMMONCONTROLSEX ctls;
@@ -43,7 +55,8 @@ void Game::Init()
 
 void Game::SceneInit()
 {
-
+    ball = new Circle(100, 100, 30);
+    ball->SetVelocity(5, 10);
 }
 
 
@@ -104,8 +117,8 @@ void Game::GetInput(int message, WPARAM wParam, LPARAM lParam)
 
 void Game::Update()
 {
-    lineAngle += 30;
-    lineAngle %= 360;
+    ball->UpdatePosition();
+    ball->CheckBorderCollision(viewport.GetWidth(), viewport.GetHeight());
 }
 
 
@@ -118,10 +131,8 @@ void Game::Render(double inFrame)
     HDC hDC = bb->GetDC();
 
 
-    float rads = lineAngle * pi / 180.0f;
+    ball->Draw(hDC, inFrame);
 
-    MoveToEx(hDC, mouse.X(), mouse.Y(), NULL);
-    LineTo(hDC, mouse.X() + cos(rads)*50, mouse.Y() + sin(rads)*50);
 
     InvalidateRect(viewport.GetHWND(), NULL, FALSE);
 }

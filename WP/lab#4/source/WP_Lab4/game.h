@@ -4,10 +4,13 @@
 #include "mouse.h"
 #include "viewport_window.h"
 
+class Circle;
 
 class Game
 {
 public:
+    Game();
+    virtual ~Game();
     virtual void Init();
     virtual void SceneInit();
     virtual void Run();
@@ -20,6 +23,6 @@ private:
     ViewportWindow viewport;
     Mouse mouse;
 
-    int lineAngle;
+    Circle* ball;
 };
 
