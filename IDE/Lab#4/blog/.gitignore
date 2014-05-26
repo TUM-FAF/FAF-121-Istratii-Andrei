@@ -1,0 +1,39 @@
+
+*.rbc
+capybara-*.html
+.rspec
+/log
+/log/*.log
+/tmp
+/db/*.sqlite3
+/db/*.sqlite3-journal
+/public/system
+/coverage/
+/spec/tmp
+/spec/fixtures/api
+**.orig
+rerun.txt
+pickle-email-*.html
+
+# TODO Comment out these rules if you are OK with secrets being uploaded to the repo
+config/initializers/secret_token.rb
+config/secrets.yml
+/config/database.yml
+/config/application.yml
+/config/ldap.yml
+
+.DS_Store
+.keep
+public/assets/source_maps
+/.idea
+
+## Environment normalisation:
+/.bundle
+/.project
+/vendor/bundle
+
+# these should all be checked in to normalise the environment:
+# Gemfile.lock, .ruby-version, .ruby-gemset
+
+# unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
+.rvmrc
