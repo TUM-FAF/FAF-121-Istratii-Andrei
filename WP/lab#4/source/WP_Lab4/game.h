@@ -3,8 +3,10 @@
 
 #include "mouse.h"
 #include "viewport_window.h"
+#include "collision.h"
+#include <list>
+#include <vector>
 
-class Circle;
 
 class Game
 {
@@ -19,10 +21,15 @@ public:
     virtual void Update();
     virtual void Render(double inFrame);
 
+    virtual void OnLeftButtonDown();
+    virtual void OnRightButtonDown();
+
 private:
     ViewportWindow viewport;
     Mouse mouse;
+    bool needUpdate;
 
-    Circle* ball;
+    std::list<Circle*> balls;
+    std::vector<Collision> collisions;
 };
 

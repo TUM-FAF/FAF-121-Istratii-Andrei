@@ -21,6 +21,12 @@ void Circle::UpdatePosition()
 }
 
 
+void Circle::ApplyGravity(float g)
+{
+    velocity.y += g;
+}
+
+
 void Circle::SetVelocity(float x, float y)
 {
     velocity = Vector2D(x, y);

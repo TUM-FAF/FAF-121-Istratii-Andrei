@@ -5,13 +5,18 @@
 
 Game::Game()
 {
-    ball = NULL;
+
 }
 
 
 Game::~Game()
 {
-    if (ball) { delete ball; }
+    std::list<Circle*>::iterator itr;
+    for (itr = balls.begin(); itr != balls.end(); ++itr)
+    {
+        delete (*itr);
+        (*itr) = NULL;
+    }
 }
 
 
@@ -55,8 +60,8 @@ void Game::Init()
 
 void Game::SceneInit()
 {
-    ball = new Circle(100, 100, 30);
-    ball->SetVelocity(5, 10);
+    //balls.push_back(new Circle(100, 100, 50));
+    //balls.front()->SetVelocity(5, 10);
 }
 
 
@@ -86,7 +91,11 @@ void Game::Run()
 
         while (lag >= MS_PER_UPDATE)
         {
-            Update();
+            if (needUpdate)
+            {
+                Update();
+                needUpdate = true;
+            }
             lag -= MS_PER_UPDATE;
         }
 
@@ -108,6 +117,13 @@ void Game::GetInput(int message, WPARAM wParam, LPARAM lParam)
             mouse.Update(m.x, m.y);
         }
         break;
+    case WM_LBUTTONDOWN:
+        OnLeftButtonDown();
+        break;
+
+    case WM_MOUSEWHEEL:
+        OnRightButtonDown();
+        break;
 
     default:
         return;
@@ -115,10 +131,45 @@ void Game::GetInput(int message, WPARAM wParam, LPARAM lParam)
 }
 
 
+void Game::OnLeftButtonDown()
+{
+    balls.push_back(new Circle(mouse.X(), mouse.Y(), 30));
+}
+
+
+void Game::OnRightButtonDown()
+{
+    needUpdate = true;
+}
+
+
 void Game::Update()
 {
-    ball->UpdatePosition();
-    ball->CheckBorderCollision(viewport.GetWidth(), viewport.GetHeight());
+    std::list<Circle*>::iterator ball1;
+    for (ball1 = balls.begin(); ball1 != balls.end(); ++ball1)
+    {
+        (*ball1)->ApplyGravity(1);
+        (*ball1)->UpdatePosition();
+        (*ball1)->CheckBorderCollision(viewport.GetWidth(), viewport.GetHeight());
+
+        std::list<Circle*>::iterator ball2;
+        for (ball2 = std::next(ball1); ball2 != balls.end(); ++ball2)
+        {
+            if (Collision::Interpenetration(**ball1, **ball2) >= 0)
+            {
+                collisions.push_back(Collision(*ball1, *ball2));
+            }
+        }
+    }
+
+    std::sort(collisions.begin(), collisions.end(), Collision::compare);
+
+    std::vector<Collision>::iterator col;
+    for (col = collisions.begin(); col != collisions.end(); ++col)
+    {
+        col->Solve();
+    }
+    collisions.clear();
 }
 
 
@@ -131,7 +182,11 @@ void Game::Render(double inFrame)
     HDC hDC = bb->GetDC();
 
 
-    ball->Draw(hDC, inFrame);
+    std::list<Circle*>::iterator itr;
+    for (itr = balls.begin(); itr != balls.end(); ++itr)
+    {
+        (*itr)->Draw(hDC, inFrame);
+    }
 
 
     InvalidateRect(viewport.GetHWND(), NULL, FALSE);

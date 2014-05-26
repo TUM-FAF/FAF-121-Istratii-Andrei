@@ -28,6 +28,7 @@
 #include "error.h"
 #include "geometry.h"
 #include "circle.h"
+#include "collision.h"
 
 #include "resource.h"
 
