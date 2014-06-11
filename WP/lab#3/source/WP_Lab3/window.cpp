@@ -1,6 +1,7 @@
 
 #include "window.h"
-#include <iostream>
+#include "shared_headers.h"
+
 
 
 bool Window::CreateEx(DWORD dwExStyle,
@@ -74,26 +75,43 @@ LRESULT Window::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
         hWnd = hWnd_;
+        OnCreate();
         break;
 
+    case WM_SIZE:
+        {
+            OnSize(LOWORD(lParam), HIWORD(lParam), wParam);
+        }
+        break;
+
+    case WM_COMMAND:
+        OnCommand(wParam, lParam);
+        break;
 
     case WM_KEYDOWN:
         OnKeyDown(wParam, lParam);
         return 0;
 
+    case WM_LBUTTONDOWN:
+        OnLeftMouseButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        return 0;
+
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
-
             BeginPaint(hWnd, &ps);
             OnPaint(ps.hdc);
             EndPaint(hWnd, &ps);
         }
         return 0;
 
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+
     case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
+        OnDestroy();
+        break;
     }
 
     return DefWindowProc(hWnd_, message, wParam, lParam);

@@ -1,10 +1,6 @@
 
 #include "workspace_window.h"
-#include "resource.h"
-#include "canvas.h"
-#include <windowsx.h>
-
-#include <iostream>
+#include "shared_headers.h"
 
 
 WorkspaceWindow::WorkspaceWindow()
@@ -29,14 +25,9 @@ void WorkspaceWindow::OnCreate()
 
     backbuffer.Init(hDC, rct.right - rct.left, rct.bottom - rct.top);
 
-    canvas = new Canvas;
-
+    canvas = new Canvas(&drawingOptions);
     canvas->Init(hDC, 1024, 1024);
-
-    bltRect.left = 0;
-    bltRect.top = 0;
-    bltRect.right = 1024;
-    bltRect.bottom = 1024;
+    mouse.RegisterListener(canvas);
 
     ReleaseDC(hWnd, hDC);
 }
@@ -44,28 +35,38 @@ void WorkspaceWindow::OnCreate()
 
 void WorkspaceWindow::OnPaint(HDC hDC)
 {
-    backbuffer.FillWithColor(RGB(200,255,200));
+    backbuffer.FillWithColor(RGB(100, 100, 100));
+
+    canvas->Update();
+
+    RECT zoom = canvas->GetZoomRect();
 
     SetStretchBltMode(backbuffer.GetDC(), HALFTONE);
     StretchBlt(backbuffer.GetDC(),
-        bltRect.left,
-        bltRect.top,
-        bltRect.right - bltRect.left,
-        bltRect.bottom - bltRect.top,
+        zoom.left,
+        zoom.top,
+        zoom.right - zoom.left,
+        zoom.bottom - zoom.top,
         canvas->GetDC(),
         0,
         0,
-        1024,
-        1024,
+        canvas->GetWidth(),
+        canvas->GetHeight(),
         SRCCOPY);
+
+    HBRUSH hOldBrush = (HBRUSH)SelectObject(backbuffer.GetDC(), GetStockBrush(NULL_BRUSH));
+
+    Rectangle(backbuffer.GetDC(), zoom.left-1, zoom.top-1, zoom.right+1, zoom.bottom+1);
+
+    SelectObject(backbuffer.GetDC(), hOldBrush);
 
     backbuffer.Present(hDC);
 }
 
 
-void WorkspaceWindow::OnSize(int w, int h)
+void WorkspaceWindow::OnSize(int width, int height, WPARAM wParam)
 {
-    backbuffer.Resize(w, h);
+    backbuffer.Resize(width, height);
 }
 
 
@@ -79,74 +80,100 @@ LRESULT WorkspaceWindow::WndProc(HWND hWnd_, UINT message, WPARAM wParam, LPARAM
 {
     switch (message)
     {
-    case WM_CREATE:
-        hWnd = hWnd_;
-        OnCreate();
-        break;
-
-
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            BeginPaint(hWnd, &ps);
-            OnPaint(ps.hdc);
-            EndPaint(hWnd, &ps);
-        }
-        break;
-
-
     case WM_ERASEBKGND:
         return 1;
         break;
 
 
-    case WM_SIZE:
-        OnSize(LOWORD(lParam), HIWORD(lParam));
-        break;
-
-
     case WM_MOUSEWHEEL:
+        {
+            RECT rct;
+            GetClientRect(hWnd, &rct);
 
+            canvas->Zoom(mouse.X(), mouse.Y(), rct.right - rct.left, rct.bottom - rct.top);
+
+            InvalidateRect(hWnd, NULL, FALSE);
+        }
         break;
 
 
     case WM_LBUTTONDOWN:
         SetCapture(hWnd);
-        break;
-
-
-    case WM_LBUTTONUP:
-        ReleaseCapture();
-        break;
-
-
-    case WM_MOUSEMOVE:
+        mouse.LeftButtonDown();
         {
-            POINT m;
-            m.x = GET_X_LPARAM(lParam);
-            m.y = GET_Y_LPARAM(lParam);
+            RECT rct;
+            GetClientRect(hWnd, &rct);
 
-            mouse.Update(m.x, m.y);
-
-            if (wParam == MK_LBUTTON)
+            if (drawingOptions.tool == ZOOMIN)
             {
-                bltRect.left += mouse.DX();
-                bltRect.top += mouse.DY();
-                bltRect.right += mouse.DX();
-                bltRect.bottom += mouse.DY();
+                canvas->StepZoomIn(mouse.X(), mouse.Y(), rct.right - rct.left, rct.bottom - rct.top);
+                InvalidateRect(hWnd, NULL, FALSE);
+            }
+            if (drawingOptions.tool == ZOOMOUT)
+            {
+                canvas->StepZoomOut(mouse.X(), mouse.Y(), rct.right - rct.left, rct.bottom - rct.top);
                 InvalidateRect(hWnd, NULL, FALSE);
             }
         }
         break;
 
 
-    case WM_DESTROY:
-        OnDestroy();
+    case WM_LBUTTONUP:
+        ReleaseCapture();
+        mouse.LeftButtonUp();
+        break;
+
+
+    case WM_RBUTTONDOWN:
+        SetCapture(hWnd);
+        mouse.RightButtonDown();
+        break;
+
+
+    case WM_RBUTTONUP:
+        ReleaseCapture();
+        mouse.RightButtonUp();
+        break;
+
+
+    case WM_KEYDOWN:
+        if (wParam == VK_SHIFT)
+        {
+            drawingOptions.shiftConstraint = true;
+        }
+        break;
+
+    case WM_KEYUP:
+        if (wParam == VK_SHIFT)
+        {
+            drawingOptions.shiftConstraint = false;
+        }
+        break;
+
+
+    case WM_MOUSEMOVE:
+        {
+            SetFocus(hWnd);
+            POINT m;
+            m.x = GET_X_LPARAM(lParam);
+            m.y = GET_Y_LPARAM(lParam);
+
+            mouse.Update(m.x, m.y);
+            mouse.Move();
+
+            if (wParam == MK_RBUTTON)
+            {
+                RECT rct;
+                GetClientRect(hWnd, &rct);
+                canvas->Pan(mouse.DX(), mouse.DY(), rct.right - rct.left, rct.bottom - rct.top);
+            }
+            InvalidateRect(hWnd, NULL, FALSE);
+        }
         break;
 
 
     default:
-        return DefWindowProc(hWnd_, message, wParam, lParam);
+        return Window::WndProc(hWnd_, message, wParam, lParam);
     }
 
     return 0;

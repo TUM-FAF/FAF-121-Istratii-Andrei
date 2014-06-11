@@ -85,6 +85,7 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
   <ItemGroup>
     <ClCompile Include="backbuffer.cpp" />
     <ClCompile Include="canvas.cpp" />
+    <ClCompile Include="drawable.cpp" />
     <ClCompile Include="frame_window.cpp" />
     <ClCompile Include="mouse.cpp" />
     <ClCompile Include="tools.cpp" />
@@ -95,9 +96,13 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
   <ItemGroup>
     <ClInclude Include="backbuffer.h" />
     <ClInclude Include="canvas.h" />
+    <ClInclude Include="colorpicker.h" />
+    <ClInclude Include="drawable.h" />
+    <ClInclude Include="drawing_options.h" />
     <ClInclude Include="frame_window.h" />
     <ClInclude Include="mouse.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="shared_headers.h" />
     <ClInclude Include="tools.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="workspace_window.h" />
@@ -108,6 +113,13 @@ copy $(ProjectDir)settings.cfg $(TargetDir)</Command>
   <ItemGroup>
     <Image Include="..\..\assets\circles_small.bmp" />
     <Image Include="..\..\assets\duke.bmp" />
+    <Image Include="..\..\assets\ellipse.ico" />
+    <Image Include="..\..\assets\hand.ico" />
+    <Image Include="..\..\assets\pencil.ico" />
+    <Image Include="..\..\assets\pointer.ico" />
+    <Image Include="..\..\assets\rectangle.ico" />
+    <Image Include="..\..\assets\zoomin.ico" />
+    <Image Include="..\..\assets\zoomout.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

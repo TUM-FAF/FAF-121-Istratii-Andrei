@@ -5,6 +5,7 @@
 #include "window.h"
 #include "backbuffer.h"
 #include "mouse.h"
+#include "drawing_options.h"
 
 
 class Canvas;
@@ -16,19 +17,20 @@ public:
     WorkspaceWindow();
     void InitCanvas(int w, int h);
 
+    DrawingOptions drawingOptions;
+
 private:
     Canvas* canvas;
+    
     Backbuffer backbuffer;
 
     Mouse mouse;
 
-    RECT bltRect;
-
-    
+    float zoomFactor;
 
     virtual void OnCreate();
     virtual void OnPaint(HDC hDC);
-    virtual void OnSize(int w, int h);
+    virtual void OnSize(int width, int height, WPARAM wParam);
     virtual void OnDestroy();
 
 

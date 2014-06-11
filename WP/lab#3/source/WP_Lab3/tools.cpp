@@ -1,14 +1,6 @@
 
-
-
-#include <io.h>
-#include <cstdio>
-#include <fcntl.h>
-#include <Windows.h>
-#include <string>
-#include <fstream>
-#include <regex>
-#include <map>
+#include "tools.h"
+#include "shared_headers.h"
 
 
 void CreateDeveloperConsole()
@@ -72,3 +64,14 @@ bool LoadConfigFile(char const * filePath, std::map<std::string, std::string> & 
     return true;
 }
 
+
+void SetFontForChildren(HWND parent, HFONT font)
+{
+    EnumChildWindows(parent, SetFontProc, (LPARAM) font);
+}
+
+BOOL CALLBACK SetFontProc(HWND child, LPARAM lParam)
+{
+    SendMessage(child, WM_SETFONT, (WPARAM)lParam, TRUE);
+    return TRUE;
+}

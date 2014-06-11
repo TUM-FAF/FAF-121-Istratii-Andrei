@@ -33,12 +33,16 @@ public:
 protected:
     HWND hWnd;
 
+    virtual LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 private:
+    virtual void OnCreate() { }
     virtual void OnPaint(HDC hDC) { }
     virtual void OnKeyDown(WPARAM vkcode, LPARAM extraInfo) { }
-
-
-    virtual LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual void OnLeftMouseButtonDown(int x, int y) { }
+    virtual void OnSize(int width, int height, WPARAM wParam) { }
+    virtual void OnCommand(WPARAM wParam, LPARAM lParam) { }
+    virtual void OnDestroy() { }
 
     static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

@@ -39,6 +39,9 @@
     <ClCompile Include="mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="drawable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -65,6 +68,18 @@
     <ClInclude Include="mouse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="drawable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shared_headers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="colorpicker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="drawing_options.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WP_Lab3.rc">
@@ -76,6 +91,27 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\..\assets\circles_small.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\assets\ellipse.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\assets\hand.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\assets\pencil.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\assets\pointer.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\assets\rectangle.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\assets\zoomin.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\assets\zoomout.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

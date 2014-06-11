@@ -1,6 +1,6 @@
 
 #include "backbuffer.h"
-#include <iostream>
+#include "shared_headers.h"
 
 
 Backbuffer::Backbuffer()
@@ -54,8 +54,6 @@ void Backbuffer::Resize(int w, int h)
 
     hBackbufferBMP = CreateCompatibleBitmap(hBackbufferDC, width, height);
     DeleteObject(SelectObject(hBackbufferDC, hBackbufferBMP));
-
-    std::cout << hBackbufferBMP << std::endl; 
 }
 
 
