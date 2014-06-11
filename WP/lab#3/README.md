@@ -38,7 +38,7 @@ Basics of Working with Mouse. GDI Primitives. Bezier Curve.
 
 ## Screenshot
 
-  ![Screenshot](https://raw.github.com/Andreis13/WP-Labs/master/lab%233/screenshots/1.png)
+  ![Screenshot](https://raw.githubusercontent.com/TUM-FAF/FAF-121-Istratii-Andrei/master/WP/lab%233/screenshots/1.png)
 
 
 
