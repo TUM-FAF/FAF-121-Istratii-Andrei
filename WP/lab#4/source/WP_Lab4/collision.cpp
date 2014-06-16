@@ -23,19 +23,19 @@ void Collision::Solve()
 
     float m1 = c1->radius * c1->radius;
     float m2 = c2->radius * c2->radius;
-    std::cout << "Masses: " << m1 << ", " << m2 << std::endl;
+    //std::cout << "Masses: " << m1 << ", " << m2 << std::endl;
 
-    std::cout << "Velocities: " << (c1->velocity) << ", " << (c2->velocity) << std::endl;
+    //std::cout << "Velocities: " << (c1->velocity) << ", " << (c2->velocity) << std::endl;
 
     Vector2D preCollPart1 = c1->velocity.VectorProjOn(collisionVector);
     Vector2D preCollPart2 = c2->velocity.VectorProjOn(collisionVector);
 
-    std::cout << "PreColl: " << preCollPart1 << ", " << preCollPart2 << std::endl;
+    //std::cout << "PreColl: " << preCollPart1 << ", " << preCollPart2 << std::endl;
 
     Vector2D tangPart1 = c1->velocity - preCollPart1;
     Vector2D tangPart2 = c2->velocity - preCollPart2;
 
-    std::cout << "TanPart: " << tangPart1 << ", " << preCollPart2 << std::endl;
+    //std::cout << "TanPart: " << tangPart1 << ", " << preCollPart2 << std::endl;
 
     Vector2D postCollPart1 = (m1*preCollPart1 + m2*(2*preCollPart2 - preCollPart1))/(m1 + m2);
     Vector2D postCollPart2 = postCollPart1 + preCollPart1 - preCollPart2;
