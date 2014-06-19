@@ -19,7 +19,7 @@ GUI Development
 
 ## Screenshots
 
-  ![Screenshot](https://raw.githubusercontent.com/TUM-FAF/FAF-121-Istratii-Andrei/master/IDE/lab%232/screenshots/1.png)
+  ![Screenshot](https://raw.githubusercontent.com/TUM-FAF/FAF-121-Istratii-Andrei/master/IDE/Lab%232/screenshots/1.png)
 
 ## Comments
 
