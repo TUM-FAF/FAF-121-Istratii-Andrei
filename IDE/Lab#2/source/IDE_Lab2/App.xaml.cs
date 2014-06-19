@@ -13,6 +13,5 @@ namespace IDE_Lab2
     /// </summary>
     public partial class App : Application
     {
-
     }
 }
