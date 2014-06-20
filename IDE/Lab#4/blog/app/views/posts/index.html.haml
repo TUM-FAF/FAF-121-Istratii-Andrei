@@ -1,0 +1,13 @@
+.row
+  .col-xs-12
+    - @posts.each do |post|
+      .panel.panel-info
+        .panel-heading
+          = link_to post.title, post
+        .panel-body
+          %p
+            = post.content
+          .btn-group
+            = link_to "Edit", edit_post_path(post), :class => "btn btn-default"
+            = link_to "Remove", post, :method => :delete, :class => "btn btn-default"
+    = link_to "New Post", new_post_path, :class => "btn btn-primary"

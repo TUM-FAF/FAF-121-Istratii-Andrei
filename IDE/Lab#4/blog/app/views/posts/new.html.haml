@@ -1,0 +1,10 @@
+.row
+  .col-xs-12
+    %h3 New Post
+    = form_for @post, :url => posts_path do |f|
+      .form-group
+        = f.label "Title"
+        = f.text_field :title, :class => "form-control"
+        = f.label "Content"
+        = f.text_area :content, :class => "form-control"
+      = f.submit :class => "btn btn-default"
